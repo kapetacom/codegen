@@ -8,15 +8,15 @@ class CodeWriter {
         this._baseDir = basedir;
     }
 
-    writeFile(filename, content) {
-        var destinationFile = Path.join(this._baseDir, target);
+    _writeFile(filename, content) {
+        var destinationFile = Path.join(this._baseDir, filename);
         mkdirp.sync(Path.dirname(destinationFile));
         console.log('Writing file: ', destinationFile);
         FS.writeFileSync(destinationFile, content);
     }
 
-    writeGeneratedData(files) {
-        files.forEach((file) => this.writeFile(file.filename, file.content));
+    write(generatedOutput) {
+        generatedOutput.forEach((file) => this._writeFile(file.filename, file.content));
     }
 }
 
