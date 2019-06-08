@@ -88,9 +88,4 @@ class BlockCodeGenerator {
     }
 }
 
-BlockCodeGenerator.LANGUAGES = {
-    'targets.blockware.com/v1/java8-springboot2': require('./java8-springboot2'),
-    'targets.blockware.com/v1/nodejs9': require('./nodejs9')
-};
-
 module.exports = BlockCodeGenerator;
