@@ -1,0 +1,23 @@
+{
+  "name": "@blockware/codegen",
+  "version": "0.0.1",
+  "description": "Blockware code generator module",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blockwarecom/codegen.git"
+  },
+  "keywords": [
+    "blockware"
+  ],
+  "author": "Henrik Hofmeister <hh@blockware.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blockwarecom/codegen/issues"
+  },
+  "homepage": "https://github.com/blockwarecom/codegen#readme",
+  "dependencies": {
+    "handlebars": "4.1.2",
+    "lodash": "4.17.11"
+  }
+}
