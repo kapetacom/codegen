@@ -48,7 +48,7 @@ class BlockCodeGenerator {
                 try {
                     entity.kind = 'entity';
                     result = result.concat(
-                        target.generate(entity)
+                        target.generate(entity, this._data)
                     );
                 } catch (e) {
                     console.warn('Did not generate anything for entity: %s, Error: %s', entity.kind, e.message);
@@ -61,7 +61,7 @@ class BlockCodeGenerator {
             spec.consumers.forEach((consumer) => {
                 try {
                     result = result.concat(
-                        target.generate(consumer)
+                        target.generate(consumer, this._data)
                     );
                 } catch (e) {
                     console.warn('Did not generate anything for consumer: %s, Error: %s', consumer.kind, e.message);
@@ -74,7 +74,7 @@ class BlockCodeGenerator {
             spec.providers.forEach((provider) => {
                 try {
                     result = result.concat(
-                        target.generate(provider)
+                        target.generate(provider, this._data)
                     );
                 } catch(e) {
                     console.warn('Did not generate anything for provider: %s, Error: %s', provider.kind, e.message);

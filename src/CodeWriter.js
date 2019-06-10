@@ -12,14 +12,10 @@ class CodeWriter {
         var destinationFile = Path.join(this._baseDir, filename);
         mkdirp.sync(Path.dirname(destinationFile));
 
-        const destinationExists = !FS.existsSync(destinationFile);
+        const destinationExists = FS.existsSync(destinationFile);
 
         let writeNow = false;
         switch (mode) {
-            case 'write-always':
-                //Always write files
-                writeNow = true;
-                break;
             case 'merge':
                 //Merge files
                 writeNow = true;
@@ -32,6 +28,13 @@ class CodeWriter {
                 //Only write if file does not exist
                 writeNow = !FS.existsSync(destinationFile);
                 break;
+
+            default:
+            case 'write-always':
+                //Always write files
+                writeNow = true;
+                break;
+
         }
 
         if (!writeNow) {
