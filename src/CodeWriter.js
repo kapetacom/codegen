@@ -181,7 +181,7 @@ class CodeWriter {
     }
 
     /**
-     * Check is an asset has manual changes since it was generated
+     * Check if an asset has manual changes since it was generated
      * @param asset
      * @returns {boolean}
      * @private
