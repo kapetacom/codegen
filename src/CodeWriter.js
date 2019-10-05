@@ -58,6 +58,11 @@ class CodeWriter {
     _updateAssetFile(newFile, existingAsset) {
         const destinationFile = this._createDestinationFolder(newFile.filename);
         let mode = newFile.mode;
+        let permissions = newFile.permissions;
+
+        if (!permissions) {
+            permissions = '644';
+        }
 
         const destinationExists = FS.existsSync(destinationFile);
         const newChecksum = checksum(newFile.content);
@@ -67,6 +72,7 @@ class CodeWriter {
             filename: newFile.filename,
             mode: newFile.mode,
             checksum: newChecksum,
+            permissions,
             modified: new Date().getTime()
         };
 
@@ -110,6 +116,7 @@ class CodeWriter {
                 filename: existingAsset.filename,
                 mode: existingAsset.mode,
                 checksum: existingAsset.checksum,
+                permissions,
                 modified: existingAsset ? existingAsset.modified : new Date().getTime()
             };
         }
@@ -127,7 +134,9 @@ class CodeWriter {
             FS.unlinkSync(Path.join(this._baseDir, existingAsset.filename));
         }
 
-        FS.writeFileSync(destinationFile, newFile.content);
+        FS.writeFileSync(destinationFile, newFile.content, {
+            mode: parseInt(permissions, 8)
+        });
 
         return newAsset;
     }
