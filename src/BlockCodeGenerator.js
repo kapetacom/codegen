@@ -1,5 +1,7 @@
 const _ = require('lodash');
 
+const ENTITY_KIND = 'core.blockware.com/v1/Entity';
+
 class BlockCodeGenerator {
     /**
      *
@@ -46,7 +48,7 @@ class BlockCodeGenerator {
         if (spec.entities) {
             spec.entities.forEach((entity) => {
                 try {
-                    entity.kind = 'entity';
+                    entity.kind = ENTITY_KIND;
                     result = result.concat(
                         target.generate(entity, this._data)
                     );
