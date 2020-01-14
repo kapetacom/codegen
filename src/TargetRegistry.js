@@ -50,10 +50,8 @@ class TargetRegistry {
             })
             .filter((data) => !!data)
             .forEach((data) => {
-
                 try {
                     this.register(data.kind, require(data.path));
-                    console.log('\t - Registered language target: %s [%s]', data.kind, data.path);
                 } catch(err) {
                     console.log('Failed while registering language target: %s for %s. Error: %s', data.kind, data.path, err.stack);
                 }
