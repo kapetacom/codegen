@@ -16,7 +16,7 @@ class TargetRegistry {
     }
 
     register(targetId, target) {
-        this._targets[targetId] = target;
+        this._targets[targetId.toLowerCase()] = target;
     }
 
     load(providerDir) {
@@ -62,12 +62,13 @@ class TargetRegistry {
     }
 
     async get(target) {
-        if (!this._targets[target]) {
+        const lcTarget = target.toLowerCase();
+        if (!this._targets[lcTarget]) {
             //TODO: Attempt to download target if not available
             throw new Error('Target not supported: ' + target);
         }
 
-        return this._targets[target];
+        return this._targets[lcTarget];
     }
 }
 
