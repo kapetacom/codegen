@@ -148,7 +148,7 @@ class CodeWriter {
      * @returns {*}
      * @private
      */
-    _readAssetsFile() {
+    _readAssetsFile() {
         const fullPath = Path.join(this._baseDir, ASSETS_FILE);
 
         if (!FS.existsSync(fullPath)) {
