@@ -45,8 +45,9 @@ class BlockCodeGenerator {
 
         const spec = this._data.spec;
 
-        if (spec.entities) {
-            spec.entities.forEach((entity) => {
+        if (spec.entities &&
+            spec.entities.types) {
+            spec.entities.types.forEach((entity) => {
                 try {
                     entity.kind = ENTITY_KIND;
                     result = result.concat(
