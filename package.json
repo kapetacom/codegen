@@ -19,6 +19,12 @@
   "bugs": {
     "url": "https://github.com/blockwarecom/codegen/issues"
   },
+  "peerDependencies": {
+    "@jest/globals": "*"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.1.2"
+  },
   "homepage": "https://github.com/blockwarecom/codegen#readme",
   "dependencies": {
     "checksum": "0.1.1",

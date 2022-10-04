@@ -13,9 +13,15 @@ const MODE_WRITE_ALWAYS = 'write-always';
 
 class CodeWriter {
 
-    constructor(basedir) {
+    /**
+     *
+     * @param basedir
+     * @param options {{skipAssetsFile?:boolean}}
+     */
+    constructor(basedir, options) {
         this._baseDir = basedir;
-    }
+        this._options = options ? options : {}}
+
 
     /**
      * Ensures the target folder exists and returns the full path
@@ -232,7 +238,11 @@ class CodeWriter {
     write(generatedOutput) {
 
         try {
-            const {assets} = this._readAssetsFile();
+            let assets = null;
+            if (!this._options.skipAssetsFile) {
+                const result = this._readAssetsFile();
+                assets = result.assets;
+            }
 
             const generatedFiles = generatedOutput.map((file) => {
                 const existingAsset = _.find(assets, (asset) => {
@@ -240,15 +250,22 @@ class CodeWriter {
                     return asset.filename.toLowerCase() === file.filename.toLowerCase();
                 });
 
-                // we pull used assets out since we need the remaining list to clean up
-                _.pull(assets, existingAsset);
+                if (assets) {
+                    // we pull used assets out since we need the remaining list to clean up
+                    _.pull(assets, existingAsset);
+                }
 
                 return this._updateAssetFile(file, existingAsset);
             });
 
-            this._cleanupAssets(assets);
+            if (assets) {
+                this._cleanupAssets(assets);
+            }
 
-            this._writeAssetsFile(generatedFiles);
+            if (!this._options.skipAssetsFile) {
+                this._writeAssetsFile(generatedFiles);
+            }
+
         } catch(err) {
             console.error('Failed while generating code for block: %s', this._baseDir, err.stack);
         }
