@@ -1,6 +1,6 @@
 {
   "name": "@blockware/codegen",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Blockware code generator module",
   "main": "index.js",
   "repository": {
