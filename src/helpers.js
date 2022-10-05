@@ -1,8 +1,17 @@
-const {expect} =  require("@jest/globals");
 const CodeWriter = require('./CodeWriter');
 const BlockCodeGenerator = require('./BlockCodeGenerator');
 const Path = require("path");
 const FS = require("fs");
+
+let expect = () => {
+    throw new Error('jest tests must be run using jest');
+};
+try {
+    //jest globals throws when imported outside of jest tests
+    const globals = require("@jest/globals");
+    expect = globals.expect;
+} catch (e) {}
+
 
 function toUnixPermissions(statsMode) {
     return (statsMode & parseInt('777', 8)).toString(8);
