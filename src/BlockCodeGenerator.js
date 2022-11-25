@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const ENTITY_KIND = 'core.blockware.com/v1/Entity';
+const ENTITY_KIND = 'core/entity';
 
 class BlockCodeGenerator {
     /**
