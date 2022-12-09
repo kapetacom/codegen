@@ -1,5 +1,4 @@
 const CodeWriter = require('./CodeWriter');
-const BlockCodeGenerator = require('./BlockCodeGenerator');
 const Path = require("path");
 const FS = require("fs");
 
@@ -11,7 +10,6 @@ try {
     const globals = require("@jest/globals");
     expect = globals.expect;
 } catch (e) {}
-
 
 function toUnixPermissions(statsMode) {
     return (statsMode & parseInt('777', 8)).toString(8);
@@ -45,8 +43,7 @@ function walkDirectory(dir) {
     return results;
 }
 
-async function testCodeGenFor(target, data, basedir) {
-    const generator = new BlockCodeGenerator(data);
+async function testCodeGenFor(target, generator, basedir, includeRoot = true) {
     const results = await generator.generateForTarget(target);
 
     let allFiles = walkDirectory(basedir);
@@ -58,7 +55,7 @@ async function testCodeGenFor(target, data, basedir) {
     }
 
     results.forEach(result => {
-        const fullPath = Path.join(basedir,result.filename);
+        const fullPath = Path.join(basedir, result.filename);
         const expected = FS.readFileSync(fullPath).toString();
         const stat = FS.statSync(fullPath);
         expect(toUnixPermissions(stat.mode)).toBe(result.permissions);
@@ -70,9 +67,11 @@ async function testCodeGenFor(target, data, basedir) {
             allFiles.splice(ix, 1);
         }
     });
-
-    expect(allFiles.length).toBe(0);
+    if (includeRoot) {
+        expect(allFiles.length).toBe(0);
+    }
 }
+
 
 module.exports = {
     walkDirectory,
