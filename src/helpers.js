@@ -43,7 +43,7 @@ function walkDirectory(dir) {
     return results;
 }
 
-async function testCodeGenFor(target, generator, basedir, includeRoot = true) {
+async function testCodeGenFor(target, generator, basedir) {
     const results = await generator.generateForTarget(target);
 
     let allFiles = walkDirectory(basedir);
@@ -67,9 +67,7 @@ async function testCodeGenFor(target, generator, basedir, includeRoot = true) {
             allFiles.splice(ix, 1);
         }
     });
-    if (includeRoot) {
-        expect(allFiles.length).toBe(0);
-    }
+    expect(allFiles.length).toBe(0);
 }
 
 

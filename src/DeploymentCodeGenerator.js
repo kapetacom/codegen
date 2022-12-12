@@ -36,9 +36,12 @@ class DeploymentCodeGenerator {
             throw new Error('Deployment has no target');
         }
 
+        const Target = await this._registry.get(this._data.spec.target.kind);
+
         const target = new Target(this._data.spec.target.kind);
 
         return this.generateForTarget(target);
+
     }
 
     /**
@@ -48,13 +51,12 @@ class DeploymentCodeGenerator {
      */
     async generateForTarget(target) {
 
-        const result = []
+        const result = target.generate(this._data, this._data);
 
         const spec = this._data.spec;
         if (spec.services) {
             for (const entity of spec.services) {
                 try {
-                    entity.kind = "deployment";
                     result.push(
                         ...target.generate(entity, this._data)
                     );
@@ -64,7 +66,6 @@ class DeploymentCodeGenerator {
                 }
             }
         }
-
         return result;
     }
 }
