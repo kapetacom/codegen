@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const DefaultRegistry = require("./DefaultRegistry");
 
 const ENTITY_KIND = 'core/entity';
 
@@ -6,7 +7,7 @@ class BlockCodeGenerator {
     /**
      *
      * @param {object} blockData The parsed Block YAML
-     * @param {TargetRegistry} [registry] Defaults to BlockCodeGenerator.DEFAULT_REGISTRY
+     * @param {TargetRegistry} [registry] Defaults to DefaultRegistry
      */
     constructor(blockData, registry) {
         if (!blockData) {
@@ -17,7 +18,7 @@ class BlockCodeGenerator {
         this._registry = registry;
 
         if (!this._registry) {
-            this._registry = BlockCodeGenerator.DEFAULT_REGISTRY;
+            this._registry = DefaultRegistry;
         }
 
         if (!this._registry) {

@@ -1,10 +1,11 @@
 const _ = require('lodash');
+const DefaultRegistry = require("./DefaultRegistry");
 
 class DeploymentCodeGenerator {
     /**
      *
      * @param {object} deploymentData The parsed Deployment YAML
-     * @param {TargetRegistry} [registry] Defaults to DeploymentCodeGenerator.DEFAULT_REGISTRY
+     * @param {TargetRegistry} [registry] Defaults to DefaultRegistry
      */
     constructor(deploymentData, registry) {
         if (!deploymentData) {
@@ -15,7 +16,7 @@ class DeploymentCodeGenerator {
         this._registry = registry;
 
         if (!this._registry) {
-            this._registry = DeploymentCodeGenerator.DEFAULT_REGISTRY;
+            this._registry = DefaultRegistry;
         }
 
         if (!this._registry) {
@@ -55,14 +56,13 @@ class DeploymentCodeGenerator {
 
         const spec = this._data.spec;
         if (spec.services) {
-            for (const entity of spec.services) {
+            for (const service of spec.services) {
                 try {
                     result.push(
-                        ...target.generate(entity, this._data)
+                        ...target.generate(service, this._data)
                     );
                 } catch (e) {
-                    console.warn('Did not generate anything for entity: %s, Error: %s', entity.kind, e.message);
-                    //Ignore - not every consumer has code to be generated
+                    console.warn('Did not generate anything for service %s, Error: %s', service.kind, e.message);
                 }
             }
         }

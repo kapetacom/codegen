@@ -24,4 +24,5 @@ class TargetRegistry {
     }
 }
 
+
 module.exports = TargetRegistry;
