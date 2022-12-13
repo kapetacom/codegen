@@ -23,14 +23,15 @@
     "@jest/globals": "*"
   },
   "devDependencies": {
-    "@jest/globals": "^29.1.2"
+    "@jest/globals": "^29.3.1",
+    "@types/jest": "^29.2.4"
   },
   "homepage": "https://github.com/blockwarecom/codegen#readme",
   "dependencies": {
-    "checksum": "0.1.1",
-    "handlebars": "4.1.2",
-    "lodash": "4.17.11",
-    "mkdirp": "0.5.1",
-    "yaml": "1.6.0"
+    "checksum": "1.0.0",
+    "handlebars": "4.7.7",
+    "lodash": "4.17.21",
+    "mkdirp": "1.0.4",
+    "yaml": "2.1.3"
   }
 }
