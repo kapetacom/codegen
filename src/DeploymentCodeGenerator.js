@@ -52,14 +52,15 @@ class DeploymentCodeGenerator {
      */
     async generateForTarget(target) {
 
-        const result = target.generate(this._data, this._data);
+        const data = target.preprocess ? await target.preprocess(this._data) : this._data;
+        const result = target.generate(data, data);
 
         const spec = this._data.spec;
         if (spec.services) {
             for (const service of spec.services) {
                 try {
                     result.push(
-                        ...target.generate(service, this._data)
+                        ...target.generate(service, data)
                     );
                 } catch (e) {
                     console.warn('Did not generate anything for service %s, Error: %s', service.kind, e.message);
