@@ -38,7 +38,7 @@ The **default** target registry is available as "registry" in the export
 from this library. If you register targets to this registry it will automatically
 be picked up by the rest of the code generation framework
 ```javascript
-const {registry} = require('@blockware/codegen');
+const {registry} = require('@kapeta/codegen');
 ```
 
 To register a language target we do this:
@@ -46,6 +46,6 @@ To register a language target we do this:
 registry.register('target-identifier', TargetClass);
 ```
 TargetClass is expected to extend ```Target``` which is found in the
-```@blockware/codegen-target``` module:
+```@kapeta/codegen-target``` module:
 https://github.com/blockwarecom/codegen-target/blob/master/src/Target.js
 
