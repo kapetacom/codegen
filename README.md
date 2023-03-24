@@ -1,4 +1,4 @@
-# Blockware Code generator module
+# Kapeta Code generator module
 Uses code generator targets to generate code for blocks in any language and framework 
 
 Currently only able to generate code for "Block YML" using BlockCodeGenerator, 
