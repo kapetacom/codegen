@@ -1,49 +1,43 @@
-const CodeWriter = require('./CodeWriter');
-const Path = require("path");
-const FS = require("fs");
+import * as Path from "path";
+import * as FS from "fs";
+import {CodeGenerator, Target} from "./types";
+import {CodeWriter} from './CodeWriter';
+import {Stats} from "fs";
 
-let expect = () => {
-    throw new Error('jest tests must be run using jest');
-};
-try {
-    //jest globals throws when imported outside of jest tests
-    const globals = require("@jest/globals");
-    expect = globals.expect;
-} catch (e) {}
-
-function toUnixPermissions(statsMode) {
+function toUnixPermissions(statsMode:number) {
     return (statsMode & parseInt('777', 8)).toString(8);
 }
 
-function walkDirectory(dir) {
-    let results = [];
+export function walkDirectory(dir:string):string[] {
+    let results:string[] = [];
     if (!FS.existsSync(dir)) {
         return results;
     }
 
-    const stat = FS.statSync(dir);
+    const stat:Stats = FS.statSync(dir);
 
     if (!stat.isDirectory()) {
         return results;
     }
 
-    const files = FS.readdirSync(dir);
+    const files:string[] = FS.readdirSync(dir);
 
     files.forEach((file) => {
-        file = Path.resolve(dir, file);
-        const stat = FS.statSync(file);
+        let resolvedFile:string = Path.resolve(dir, file);
+        const stat = FS.statSync(resolvedFile);
         if (stat && stat.isDirectory()) {
-            const subResults = walkDirectory(file);
+            const subResults = walkDirectory(resolvedFile);
             results.push(...subResults);
         } else {
-            results.push(file);
+            results.push(resolvedFile);
         }
     });
 
     return results;
 }
 
-async function testCodeGenFor(target, generator, basedir) {
+export async function testCodeGenFor(target:Target, generator:CodeGenerator, basedir:string) {
+    const {expect} = require("@jest/globals");
     const results = await generator.generateForTarget(target);
 
     let allFiles = walkDirectory(basedir);
@@ -68,10 +62,4 @@ async function testCodeGenFor(target, generator, basedir) {
         }
     });
     expect(allFiles.length).toBe(0);
-}
-
-
-module.exports = {
-    walkDirectory,
-    testCodeGenFor
 }

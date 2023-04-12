@@ -1,19 +1,18 @@
+import {Target} from "./types";
 
-class TargetRegistry {
+export class TargetRegistry {
+    private _targets: {[key:string]:Target} = {};
 
-    constructor() {
+
+    public reset():void {
         this._targets = {};
     }
 
-    reset() {
-        this._targets = {};
-    }
-
-    register(targetId, target) {
+    public register(targetId:string, target:Target):void {
         this._targets[targetId.toLowerCase()] = target;
     }
 
-    async get(target) {
+    public async get(target:string):Promise<Target> {
         const lcTarget = target.toLowerCase();
         if (!this._targets[lcTarget]) {
             //TODO: Attempt to download target if not available
@@ -23,6 +22,3 @@ class TargetRegistry {
         return this._targets[lcTarget];
     }
 }
-
-
-module.exports = TargetRegistry;
