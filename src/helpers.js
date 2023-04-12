@@ -2,13 +2,10 @@ const CodeWriter = require('./CodeWriter');
 const Path = require("path");
 const FS = require("fs");
 
-let expect = () => {
-    throw new Error('jest tests must be run using jest');
-};
 try {
-    //jest globals throws when imported outside of jest tests
-    const globals = require("@jest/globals");
-    expect = globals.expect;
+    // override expect to add a message
+    const expectMessage = require("jest-expect-message");
+    expect = expectMessage.global.expect;
 } catch (e) {}
 
 function toUnixPermissions(statsMode) {
@@ -59,8 +56,7 @@ async function testCodeGenFor(target, generator, basedir) {
         const expected = FS.readFileSync(fullPath).toString();
         const stat = FS.statSync(fullPath);
         expect(toUnixPermissions(stat.mode)).toBe(result.permissions);
-        expect(expected).toBe(result.content);
-
+        expect(expected, `error in ${fullPath}`).toBe(result.content);
         const ix = allFiles.indexOf(fullPath);
         expect(allFiles).toContain(fullPath);
         if (ix > -1) {
