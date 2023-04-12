@@ -1,6 +1,6 @@
 {
   "name": "@kapeta/codegen",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "Kapeta code generator module",
   "main": "dist/index.js",
   "module": "src/index.ts",
@@ -14,7 +14,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "kapeta"
