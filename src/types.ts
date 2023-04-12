@@ -1,8 +1,6 @@
-export interface Target<T = any> {
-    new (options?:any): Target<T>;
-
-    generate(data:T, context:any):GeneratedFile[];
-    preprocess?:(data:T) => Promise<any>
+export interface Target {
+    generate:(data:any, context:any) => GeneratedFile[];
+    preprocess?:(data:any) => Promise<any>
 }
 
 export interface CodeGenerator {

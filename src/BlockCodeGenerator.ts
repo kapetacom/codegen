@@ -8,22 +8,15 @@ const ENTITY_KIND = 'core/entity';
 export class BlockCodeGenerator implements CodeGenerator {
     private readonly _data: BlockDefinition;
     private readonly _registry: TargetRegistry;
-    /**
-     *
-     * @param {object} blockData The parsed Block YAML
-     * @param {TargetRegistry} [registry] Defaults to DefaultRegistry
-     */
-    constructor(blockData:BlockDefinition, registry:TargetRegistry) {
+
+    constructor(blockData:BlockDefinition, registry:TargetRegistry|null = null) {
         if (!blockData) {
             throw new Error('Block data was missing');
         }
 
         this._data = blockData;
-        this._registry = registry;
+        this._registry = registry ? registry : DefaultRegistry;
 
-        if (!this._registry) {
-            this._registry = DefaultRegistry;
-        }
 
         if (!this._registry) {
             throw new Error('No target registry found for code generator');
@@ -41,7 +34,7 @@ export class BlockCodeGenerator implements CodeGenerator {
             throw new Error('Block has no target');
         }
 
-        const targetClass:Target = await this._registry.get(this._data.spec.target.kind);
+        const targetClass:any = await this._registry.get(this._data.spec.target.kind);
 
         const target = new targetClass(this._data.spec.target.options);
 

@@ -6,22 +6,14 @@ import {registry as DefaultRegistry} from "./DefaultRegistry";
 export class DeploymentCodeGenerator implements CodeGenerator {
     private readonly _data: Deployment;
     private readonly _registry: TargetRegistry;
-    /**
-     *
-     * @param {object} deploymentData The parsed Deployment YAML
-     * @param {TargetRegistry} [registry] Defaults to DefaultRegistry
-     */
-    constructor(deploymentData:Deployment, registry:TargetRegistry) {
+
+    constructor(deploymentData:Deployment, registry:TargetRegistry|null = null) {
         if (!deploymentData) {
             throw new Error('Deployment data was missing');
         }
 
         this._data = deploymentData;
-        this._registry = registry;
-
-        if (!this._registry) {
-            this._registry = DefaultRegistry;
-        }
+        this._registry = registry ? registry : DefaultRegistry;
 
         if (!this._registry) {
             throw new Error('No target registry found for code generator');
@@ -40,7 +32,7 @@ export class DeploymentCodeGenerator implements CodeGenerator {
             throw new Error('Deployment has no target');
         }
 
-        const targetClass:Target = await this._registry.get(this._data.spec.target.kind);
+        const targetClass:any = await this._registry.get(this._data.spec.target.kind);
 
         const target = new targetClass(this._data.spec.target.kind);
 

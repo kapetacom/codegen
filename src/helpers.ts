@@ -1,8 +1,9 @@
 import * as Path from "path";
 import * as FS from "fs";
-import {CodeGenerator, Target} from "./types";
+import {CodeGenerator} from "./types";
 import {CodeWriter} from './CodeWriter';
 import {Stats} from "fs";
+
 
 function toUnixPermissions(statsMode:number) {
     return (statsMode & parseInt('777', 8)).toString(8);
@@ -36,10 +37,9 @@ export function walkDirectory(dir:string):string[] {
     return results;
 }
 
-export async function testCodeGenFor(target:Target, generator:CodeGenerator, basedir:string) {
-    const {expect} = require("jest-expect-message");
+export async function testCodeGenFor(target:any, generator:CodeGenerator, basedir:string) {
     const results = await generator.generateForTarget(target);
-
+    const {expect} = require("@jest/globals");
     let allFiles = walkDirectory(basedir);
     if (allFiles.length === 0) {
         const writer = new CodeWriter(basedir, {skipAssetsFile: true});
@@ -52,8 +52,9 @@ export async function testCodeGenFor(target:Target, generator:CodeGenerator, bas
         const fullPath = Path.join(basedir, result.filename);
         const expected = FS.readFileSync(fullPath).toString();
         const stat = FS.statSync(fullPath);
-        expect(toUnixPermissions(stat.mode), `Permissions error  in ${fullPath}`).toBe(result.permissions);
-        expect(expected, `Content issue in ${fullPath}`).toBe(result.content);
+        console.log(`Comparing files: ${fullPath}`);
+        expect(toUnixPermissions(stat.mode)).toBe(result.permissions);
+        expect(expected).toBe(result.content);
 
         const ix = allFiles.indexOf(fullPath);
         expect(allFiles).toContain(fullPath);
