@@ -37,7 +37,7 @@ export function walkDirectory(dir:string):string[] {
 }
 
 export async function testCodeGenFor(target:Target, generator:CodeGenerator, basedir:string) {
-    const {expect} = require("@jest/globals");
+    const {expect} = require("jest-expect-message");
     const results = await generator.generateForTarget(target);
 
     let allFiles = walkDirectory(basedir);
@@ -52,8 +52,8 @@ export async function testCodeGenFor(target:Target, generator:CodeGenerator, bas
         const fullPath = Path.join(basedir, result.filename);
         const expected = FS.readFileSync(fullPath).toString();
         const stat = FS.statSync(fullPath);
-        expect(toUnixPermissions(stat.mode)).toBe(result.permissions);
-        expect(expected).toBe(result.content);
+        expect(toUnixPermissions(stat.mode), `Permissions error  in ${fullPath}`).toBe(result.permissions);
+        expect(expected, `Content issue in ${fullPath}`).toBe(result.content);
 
         const ix = allFiles.indexOf(fullPath);
         expect(allFiles).toContain(fullPath);
