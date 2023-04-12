@@ -1,7 +1,7 @@
 import {BlockDefinition} from "@kapeta/schemas";
 import {TargetRegistry} from "./TargetRegistry";
 import {CodeGenerator, GeneratedFile, Target} from "./types";
-import DefaultRegistry from "./DefaultRegistry";
+import {registry as DefaultRegistry} from "./DefaultRegistry";
 
 const ENTITY_KIND = 'core/entity';
 
@@ -62,7 +62,7 @@ export class BlockCodeGenerator implements CodeGenerator {
                     result.push(
                         ...target.generate(entity, this._data)
                     );
-                } catch (e) {
+                } catch (e:any) {
                     console.warn('Did not generate anything for entity: %s, Error: %s', entity.kind, e.message);
                     //Ignore - not every consumer has code to be generated
                 }
@@ -75,7 +75,7 @@ export class BlockCodeGenerator implements CodeGenerator {
                     result.push(
                         ...target.generate(consumer, this._data)
                     );
-                } catch (e) {
+                } catch (e:any) {
                     console.warn('Did not generate anything for consumer: %s, Error: %s', consumer.kind, e.message);
                     //Ignore - not every consumer has code to be generated
                 }
@@ -88,7 +88,7 @@ export class BlockCodeGenerator implements CodeGenerator {
                     result.push(
                         ...target.generate(provider, this._data)
                     );
-                } catch(e) {
+                } catch(e:any) {
                     console.warn('Did not generate anything for provider: %s, Error: %s', provider.kind, e.message);
                     //Ignore - not every provider has code to be generated
                 }

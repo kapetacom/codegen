@@ -154,7 +154,7 @@ export class CodeWriter {
         try {
             const yamlRaw = FS.readFileSync(fullPath).toString();
             return YAML.parse(yamlRaw);
-        } catch(err) {
+        } catch(err:any) {
             console.error('Failed to parse assets file:', err.stack);
             return {assets:[]};
         }
@@ -186,7 +186,7 @@ export class CodeWriter {
     /**
      * Check if an asset has manual changes since it was generated
      */
-    private _hasManualChanges(asset):boolean {
+    private _hasManualChanges(asset:GeneratedAsset):boolean {
         const fullPath = Path.join(this._baseDir, asset.filename);
         const fileChecksum = this._getFileChecksum(fullPath);
         return fileChecksum !== asset.checksum;
@@ -226,7 +226,7 @@ export class CodeWriter {
             }
 
             const generatedFiles = generatedOutput.map((file) => {
-                const existingAsset = _.find(assets, (asset) => {
+                const existingAsset:GeneratedAsset = _.find(assets, (asset:GeneratedAsset) => {
                     //Find assets case insensitive to handle OSX / Windows correctly
                     return asset.filename.toLowerCase() === file.filename.toLowerCase();
                 });
@@ -247,7 +247,7 @@ export class CodeWriter {
                 this._writeAssetsFile(generatedFiles);
             }
 
-        } catch(err) {
+        } catch(err:any) {
             console.error('Failed while generating code for block: %s', this._baseDir, err.stack);
         }
     }

@@ -1,7 +1,7 @@
 import {Deployment} from "@kapeta/schemas";
 import {TargetRegistry} from "./TargetRegistry";
 import {CodeGenerator, GeneratedFile, Target} from "./types";
-import DefaultRegistry from "./DefaultRegistry";
+import {registry as DefaultRegistry} from "./DefaultRegistry";
 
 export class DeploymentCodeGenerator implements CodeGenerator {
     private readonly _data: Deployment;
@@ -60,7 +60,7 @@ export class DeploymentCodeGenerator implements CodeGenerator {
                     result.push(
                         ...target.generate(service, data)
                     );
-                } catch (e) {
+                } catch (e:any) {
                     console.warn('Did not generate anything for service %s, Error: %s', service.kind, e.message);
                 }
             }
