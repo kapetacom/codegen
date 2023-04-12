@@ -1,15 +1,19 @@
-const _ = require('lodash');
-const DefaultRegistry = require("./DefaultRegistry");
+import {BlockDefinition} from "@kapeta/schemas";
+import {TargetRegistry} from "./TargetRegistry";
+import {CodeGenerator, GeneratedFile, Target} from "./types";
+import DefaultRegistry from "./DefaultRegistry";
 
 const ENTITY_KIND = 'core/entity';
 
-class BlockCodeGenerator {
+export class BlockCodeGenerator implements CodeGenerator {
+    private readonly _data: BlockDefinition;
+    private readonly _registry: TargetRegistry;
     /**
      *
      * @param {object} blockData The parsed Block YAML
      * @param {TargetRegistry} [registry] Defaults to DefaultRegistry
      */
-    constructor(blockData, registry) {
+    constructor(blockData:BlockDefinition, registry:TargetRegistry) {
         if (!blockData) {
             throw new Error('Block data was missing');
         }
@@ -31,27 +35,20 @@ class BlockCodeGenerator {
      *
      * Example:
      * [{filename:"index.js", content:"..."}, ...]
-     *
-     * @return {Promise<{filename: string, content: string,mode:string,permissions:string}[]>}
      */
-    async generate() {
+    public async generate():Promise<GeneratedFile[]> {
         if (!this._data.spec.target) {
             throw new Error('Block has no target');
         }
 
-        const Target = await this._registry.get(this._data.spec.target.kind);
+        const targetClass:Target = await this._registry.get(this._data.spec.target.kind);
 
-        const target = new Target(this._data.spec.target.options);
+        const target = new targetClass(this._data.spec.target.options);
 
         return this.generateForTarget(target);
     }
 
-    /**
-     *
-     * @param target {Target}
-     * @returns {Promise<{filename: string, content: string,mode:string,permissions:string}[]>}
-     */
-    async generateForTarget(target) {
+    public async generateForTarget(target:Target):Promise<GeneratedFile[]> {
 
         const result = target.generate(this._data, this._data);
 
@@ -102,5 +99,3 @@ class BlockCodeGenerator {
         return result;
     }
 }
-
-module.exports = BlockCodeGenerator;
