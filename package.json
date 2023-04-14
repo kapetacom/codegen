@@ -1,6 +1,6 @@
 {
   "name": "@kapeta/codegen",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Kapeta code generator module",
   "main": "dist/index.js",
   "module": "src/index.ts",

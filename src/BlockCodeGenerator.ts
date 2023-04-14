@@ -34,7 +34,7 @@ export class BlockCodeGenerator implements CodeGenerator {
             throw new Error('Block has no target');
         }
 
-        const targetClass:any = await this._registry.get(this._data.spec.target.kind);
+        const targetClass = await this._registry.get(this._data.spec.target.kind);
 
         const target = new targetClass(this._data.spec.target.options);
 
