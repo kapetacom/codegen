@@ -41,7 +41,7 @@ export async function testCodeGenFor(target:any, generator:CodeGenerator, basedi
     const results = await generator.generateForTarget(target);
     const {expect} = require("@jest/globals");
     let allFiles = walkDirectory(basedir);
-    if (allFiles.length === 0) {
+    if (allFiles.length === 0 || process?.env?.FORCE_GENERATE) {
         const writer = new CodeWriter(basedir, {skipAssetsFile: true});
         console.log('No files found in directory: %s - generating output', basedir);
         writer.write(results);
