@@ -62,5 +62,5 @@ export async function testCodeGenFor(target:any, generator:CodeGenerator, basedi
             allFiles.splice(ix, 1);
         }
     });
-    expect(allFiles.length).toBe(0);
+    expect(allFiles).toEqual([]);
 }
