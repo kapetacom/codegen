@@ -2,6 +2,7 @@ export interface Target {
     new (options:any):Target;
     generate:(data:any, context:any) => GeneratedFile[];
     preprocess?:(data:any) => Promise<any>
+    postprocess?:(files:GeneratedAsset[]) => Promise<void>
 }
 
 export interface CodeGenerator {

@@ -216,7 +216,7 @@ export class CodeWriter {
     /**
      * Takes the output from the code generator and persists it to file
      */
-    public write(generatedOutput:GeneratedFile[]):void {
+    public write(generatedOutput:GeneratedFile[]):GeneratedAsset[] {
 
         try {
             let assets:null|GeneratedAsset[] = null;
@@ -224,6 +224,8 @@ export class CodeWriter {
                 const result = this._readAssetsFile();
                 assets = result.assets;
             }
+
+            const previousAssets:GeneratedAsset[] = assets ? [...assets] : [];
 
             const generatedFiles = generatedOutput.map((file) => {
                 const existingAsset:GeneratedAsset = _.find(assets, (asset:GeneratedAsset) => {
@@ -243,12 +245,33 @@ export class CodeWriter {
                 this._cleanupAssets(assets);
             }
 
-            if (!this._options.skipAssetsFile) {
-                this._writeAssetsFile(generatedFiles);
+            if (this._options.skipAssetsFile) {
+                return generatedFiles;
             }
+
+
+            this._writeAssetsFile(generatedFiles);
+
+            return generatedFiles.filter((file) => {
+                const previousAsset:GeneratedAsset = _.find(previousAssets, (asset:GeneratedAsset) => {
+                    return asset.filename.toLowerCase() === file.filename.toLowerCase();
+                });
+
+                if (!previousAsset) {
+                    //New file
+                    return true;
+                }
+                if (previousAsset.checksum !== file.checksum) {
+                    //File changed
+                    return true;
+                }
+
+                return false;
+            });
 
         } catch(err:any) {
             console.error('Failed while generating code for block: %s', this._baseDir, err.stack);
+            return [];
         }
     }
 }

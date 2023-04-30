@@ -1,6 +1,6 @@
 import {Deployment} from "@kapeta/schemas";
 import {TargetRegistry} from "./TargetRegistry";
-import {CodeGenerator, GeneratedFile, Target} from "./types";
+import {CodeGenerator, GeneratedAsset, GeneratedFile, Target} from "./types";
 import {registry as DefaultRegistry} from "./DefaultRegistry";
 
 export class DeploymentCodeGenerator implements CodeGenerator {
@@ -32,12 +32,27 @@ export class DeploymentCodeGenerator implements CodeGenerator {
             throw new Error('Deployment has no target');
         }
 
-        const targetClass:any = await this._registry.get(this._data.spec.target.kind);
+        const targetClass = await this._registry.get(this._data.spec.target.kind);
 
         const target = new targetClass(this._data.spec.target.kind);
 
         return this.generateForTarget(target);
 
+    }
+
+
+    public async postprocess(assets:GeneratedAsset[]):Promise<void> {
+        if (!this._data.spec.target) {
+            throw new Error('Deployment has no target');
+        }
+
+        const targetClass = await this._registry.get(this._data.spec.target.kind);
+
+        const target = new targetClass(this._data.spec.target.kind);
+
+        if (target.postprocess) {
+            await target.postprocess(assets);
+        }
     }
 
     public async generateForTarget(target:Target):Promise<GeneratedFile[]> {

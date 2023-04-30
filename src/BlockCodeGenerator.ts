@@ -1,6 +1,6 @@
 import {BlockDefinition} from "@kapeta/schemas";
 import {TargetRegistry} from "./TargetRegistry";
-import {CodeGenerator, GeneratedFile, Target} from "./types";
+import {CodeGenerator, GeneratedAsset, GeneratedFile, Target} from "./types";
 import {registry as DefaultRegistry} from "./DefaultRegistry";
 
 const ENTITY_KIND = 'core/entity';
@@ -39,6 +39,20 @@ export class BlockCodeGenerator implements CodeGenerator {
         const target = new targetClass(this._data.spec.target.options);
 
         return this.generateForTarget(target);
+    }
+
+    public async postprocess(assets:GeneratedAsset[]):Promise<void> {
+        if (!this._data.spec.target) {
+            throw new Error('Block has no target');
+        }
+
+        const targetClass = await this._registry.get(this._data.spec.target.kind);
+
+        const target = new targetClass(this._data.spec.target.options);
+
+        if (target.postprocess) {
+            await target.postprocess(assets);
+        }
     }
 
     public async generateForTarget(target:Target):Promise<GeneratedFile[]> {
