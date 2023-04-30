@@ -41,7 +41,7 @@ export class BlockCodeGenerator implements CodeGenerator {
         return this.generateForTarget(target);
     }
 
-    public async postprocess(assets:GeneratedAsset[]):Promise<void> {
+    public async postprocess(targetDir:string, assets:GeneratedAsset[]):Promise<void> {
         if (!this._data.spec.target) {
             throw new Error('Block has no target');
         }
@@ -51,7 +51,7 @@ export class BlockCodeGenerator implements CodeGenerator {
         const target = new targetClass(this._data.spec.target.options);
 
         if (target.postprocess) {
-            await target.postprocess(assets);
+            await target.postprocess(targetDir, assets);
         }
     }
 
