@@ -1,7 +1,7 @@
-import {BlockDefinition} from "@kapeta/schemas";
-import {TargetRegistry} from "./TargetRegistry";
-import {CodeGenerator, GeneratedAsset, GeneratedFile, Target} from "./types";
-import {registry as DefaultRegistry} from "./DefaultRegistry";
+import { BlockDefinition } from '@kapeta/schemas';
+import { TargetRegistry } from './TargetRegistry';
+import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';
+import { registry as DefaultRegistry } from './DefaultRegistry';
 
 const ENTITY_KIND = 'core/entity';
 
@@ -9,14 +9,13 @@ export class BlockCodeGenerator implements CodeGenerator {
     private readonly _data: BlockDefinition;
     private readonly _registry: TargetRegistry;
 
-    constructor(blockData:BlockDefinition, registry:TargetRegistry|null = null) {
+    constructor(blockData: BlockDefinition, registry: TargetRegistry | null = null) {
         if (!blockData) {
             throw new Error('Block data was missing');
         }
 
         this._data = blockData;
         this._registry = registry ? registry : DefaultRegistry;
-
 
         if (!this._registry) {
             throw new Error('No target registry found for code generator');
@@ -29,7 +28,7 @@ export class BlockCodeGenerator implements CodeGenerator {
      * Example:
      * [{filename:"index.js", content:"..."}, ...]
      */
-    public async generate():Promise<GeneratedFile[]> {
+    public async generate(): Promise<GeneratedResult> {
         if (!this._data.spec.target) {
             throw new Error('Block has no target');
         }
@@ -41,7 +40,7 @@ export class BlockCodeGenerator implements CodeGenerator {
         return this.generateForTarget(target);
     }
 
-    public async postprocess(targetDir:string, assets:GeneratedAsset[]):Promise<void> {
+    public async postprocess(targetDir: string, assets: GeneratedAsset[]): Promise<void> {
         if (!this._data.spec.target) {
             throw new Error('Block has no target');
         }
@@ -55,21 +54,21 @@ export class BlockCodeGenerator implements CodeGenerator {
         }
     }
 
-    public async generateForTarget(target:Target):Promise<GeneratedFile[]> {
-
-        const result = target.generate(this._data, this._data);
+    public async generateForTarget(target: Target): Promise<GeneratedResult> {
+        const files = target.generate(this._data, this._data);
+        const out: GeneratedResult = {
+            files,
+            target,
+        };
 
         const spec = this._data.spec;
 
-        if (spec.entities &&
-            spec.entities.types) {
+        if (spec.entities && spec.entities.types) {
             spec.entities.types.forEach((entity) => {
                 try {
                     entity.kind = ENTITY_KIND;
-                    result.push(
-                        ...target.generate(entity, this._data)
-                    );
-                } catch (e:any) {
+                    files.push(...target.generate(entity, this._data));
+                } catch (e: any) {
                     console.warn('Did not generate anything for entity: %s, Error: %s', entity.kind, e.message);
                     //Ignore - not every consumer has code to be generated
                 }
@@ -79,10 +78,8 @@ export class BlockCodeGenerator implements CodeGenerator {
         if (spec.consumers) {
             spec.consumers.forEach((consumer) => {
                 try {
-                    result.push(
-                        ...target.generate(consumer, this._data)
-                    );
-                } catch (e:any) {
+                    files.push(...target.generate(consumer, this._data));
+                } catch (e: any) {
                     console.warn('Did not generate anything for consumer: %s, Error: %s', consumer.kind, e.message);
                     //Ignore - not every consumer has code to be generated
                 }
@@ -92,17 +89,14 @@ export class BlockCodeGenerator implements CodeGenerator {
         if (spec.providers) {
             spec.providers.forEach((provider) => {
                 try {
-                    result.push(
-                        ...target.generate(provider, this._data)
-                    );
-                } catch(e:any) {
+                    files.push(...target.generate(provider, this._data));
+                } catch (e: any) {
                     console.warn('Did not generate anything for provider: %s, Error: %s', provider.kind, e.message);
                     //Ignore - not every provider has code to be generated
                 }
             });
-
         }
 
-        return result;
+        return out;
     }
 }

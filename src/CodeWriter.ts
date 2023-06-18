@@ -1,35 +1,34 @@
-import {GeneratedAsset, GeneratedFile} from "./types";
+import { GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';
 
-const mkdirp = require('mkdirp');
-const Path = require('path');
-const FS = require('fs');
-const YAML = require('yaml');
-const _ = require('lodash');
-const checksum = require('checksum');
+import * as mkdirp from 'mkdirp';
+import Path from 'path';
+import FS from 'fs';
+import YAML from 'yaml';
+import _ from 'lodash';
+import checksum from 'checksum';
 
-const ASSETS_FILE       = '.kapeta/generated-files.yml';
-const MODE_MERGE        = 'merge';
-const MODE_CREATE_ONLY  = 'create-only';
+const ASSETS_FILE = '.kapeta/generated-files.yml';
+const MODE_MERGE = 'merge';
+const MODE_CREATE_ONLY = 'create-only';
 const MODE_WRITE_ALWAYS = 'write-always';
 
 export interface CodeWriterOptions {
-    skipAssetsFile?:boolean
+    skipAssetsFile?: boolean;
 }
 
 export class CodeWriter {
     private readonly _baseDir: string;
     private readonly _options: CodeWriterOptions;
 
-    constructor(basedir:string, options?:CodeWriterOptions) {
+    constructor(basedir: string, options?: CodeWriterOptions) {
         this._baseDir = basedir;
         this._options = options ? options : {};
     }
 
-
     /**
      * Ensures the target folder exists and returns the full path
      */
-    private _createDestinationFolder(filename:string):string {
+    private _createDestinationFolder(filename: string): string {
         const destinationFile = Path.join(this._baseDir, filename);
         mkdirp.sync(Path.dirname(destinationFile));
 
@@ -39,7 +38,7 @@ export class CodeWriter {
     /**
      * Get a file checksum from its contents
      */
-    private _getFileChecksum(path:string):string|null {
+    private _getFileChecksum(path: string): string | null {
         if (!FS.existsSync(path)) {
             return null;
         }
@@ -54,26 +53,15 @@ export class CodeWriter {
      * and checking if the file has changed since last time we generated it
      *
      */
-    private _updateAssetFile(newFile:GeneratedFile, existingAsset:GeneratedAsset):GeneratedAsset {
+    private _updateAssetFile(
+        newFile: GeneratedFile,
+        existingAsset: GeneratedAsset | undefined,
+        target: Target
+    ): GeneratedAsset {
         const destinationFile = this._createDestinationFolder(newFile.filename);
         let mode = newFile.mode;
-        let permissions = newFile.permissions;
-
-        if (!permissions) {
-            permissions = '644';
-        }
-
         const destinationExists = FS.existsSync(destinationFile);
-        const newChecksum = checksum(newFile.content);
         const existingChecksum = this._getFileChecksum(destinationFile);
-
-        const newAsset:GeneratedAsset = {
-            filename: newFile.filename,
-            mode: newFile.mode,
-            checksum: newChecksum,
-            permissions,
-            modified: new Date().getTime()
-        };
 
         if (existingChecksum && existingAsset) {
             if (existingChecksum === existingAsset.checksum) {
@@ -87,8 +75,30 @@ export class CodeWriter {
             case MODE_MERGE:
                 //Merge files
                 writeNow = true;
-                if (destinationExists) {
-                    console.warn('Could not merge into %s yet - not implemented. Overriding content.', destinationFile);
+                if (destinationExists && existingAsset) {
+                    writeNow = false;
+                    if (target.mergeFile) {
+                        try {
+                            const existingContent = FS.readFileSync(destinationFile).toString();
+                            newFile = target.mergeFile(
+                                {
+                                    filename: existingAsset.filename,
+                                    content: existingContent,
+                                    permissions: existingAsset.permissions,
+                                },
+                                newFile
+                            );
+                            writeNow = true;
+                        } catch (e: any) {
+                            console.warn(
+                                'Could not merge into %s yet - failed due to: %s. Skipping...',
+                                e.message,
+                                destinationFile
+                            );
+                        }
+                    } else {
+                        console.warn('Could not merge into %s yet - not implemented. Skipping...', destinationFile);
+                    }
                 }
 
                 break;
@@ -102,8 +112,20 @@ export class CodeWriter {
                 //Always write files
                 writeNow = true;
                 break;
-
         }
+
+        let permissions = newFile.permissions;
+        if (!permissions) {
+            permissions = '644';
+        }
+        const newChecksum = checksum(newFile.content);
+        const newAsset: GeneratedAsset = {
+            filename: newFile.filename,
+            mode: newFile.mode,
+            checksum: newChecksum,
+            permissions,
+            modified: new Date().getTime(),
+        };
 
         if (!writeNow) {
             if (!existingAsset) {
@@ -116,7 +138,7 @@ export class CodeWriter {
                 mode: existingAsset.mode,
                 checksum: existingAsset.checksum,
                 permissions,
-                modified: existingAsset ? existingAsset.modified : new Date().getTime()
+                modified: existingAsset ? existingAsset.modified : new Date().getTime(),
             };
         }
 
@@ -126,15 +148,14 @@ export class CodeWriter {
             console.log('Creating file: ', destinationFile);
         }
 
-        if (destinationExists &&
-            existingAsset) {
+        if (destinationExists && existingAsset) {
             // We delete this always since this might be changing casing and on OSX / Windows
             // the FS does not register that as an actual change (case-insensitive systems)
             FS.unlinkSync(Path.join(this._baseDir, existingAsset.filename));
         }
 
         FS.writeFileSync(destinationFile, newFile.content, {
-            mode: parseInt(permissions, 8)
+            mode: parseInt(permissions, 8),
         });
 
         return newAsset;
@@ -145,26 +166,26 @@ export class CodeWriter {
      * determine whether individual assets changed
      *
      */
-    private _readAssetsFile():{assets:GeneratedAsset[]} {
+    private _readAssetsFile(): { assets: GeneratedAsset[] } {
         const fullPath = Path.join(this._baseDir, ASSETS_FILE);
 
         if (!FS.existsSync(fullPath)) {
-            return {assets:[]};
+            return { assets: [] };
         }
         try {
             const yamlRaw = FS.readFileSync(fullPath).toString();
             return YAML.parse(yamlRaw);
-        } catch(err:any) {
+        } catch (err: any) {
             console.error('Failed to parse assets file:', err.stack);
-            return {assets:[]};
+            return { assets: [] };
         }
     }
 
     /**
      * Update the assets bookkeeping file
      */
-    private _writeAssetsFile(generatedFiles:GeneratedAsset[]):void {
-        let content = [
+    private _writeAssetsFile(generatedFiles: GeneratedAsset[]): void {
+        const content = [
             '# FILES GENERATED BY KAPETA',
             '# This file keeps track of generated files in your block.',
             '# You should add this to your version control system but avoid',
@@ -172,8 +193,8 @@ export class CodeWriter {
             '',
             YAML.stringify({
                 version: '1.0.0', //We put a version in here in the event that we would need to change this format at any point
-                assets: generatedFiles
-            })
+                assets: generatedFiles,
+            }),
         ].join('\n');
 
         const fullPath = this._createDestinationFolder(ASSETS_FILE);
@@ -186,7 +207,7 @@ export class CodeWriter {
     /**
      * Check if an asset has manual changes since it was generated
      */
-    private _hasManualChanges(asset:GeneratedAsset):boolean {
+    private _hasManualChanges(asset: GeneratedAsset): boolean {
         const fullPath = Path.join(this._baseDir, asset.filename);
         const fileChecksum = this._getFileChecksum(fullPath);
         return fileChecksum !== asset.checksum;
@@ -195,10 +216,8 @@ export class CodeWriter {
     /**
      * Clean up assets that we no longer need and have no changes
      */
-    private _cleanupAssets(oldAssets:GeneratedAsset[]) {
-
+    private _cleanupAssets(oldAssets: GeneratedAsset[]) {
         oldAssets.forEach((asset) => {
-
             // We only clean up files automatically if they should be
             // overwritten or they do not have any manual changes
             const canDelete = asset.mode !== MODE_CREATE_ONLY || !this._hasManualChanges(asset);
@@ -216,19 +235,18 @@ export class CodeWriter {
     /**
      * Takes the output from the code generator and persists it to file
      */
-    public write(generatedOutput:GeneratedFile[]):GeneratedAsset[] {
-
+    public write({ files, target }: GeneratedResult): GeneratedAsset[] {
         try {
-            let assets:null|GeneratedAsset[] = null;
+            let assets: null | GeneratedAsset[] = null;
             if (!this._options.skipAssetsFile) {
                 const result = this._readAssetsFile();
                 assets = result.assets;
             }
 
-            const previousAssets:GeneratedAsset[] = assets ? [...assets] : [];
+            const previousAssets: GeneratedAsset[] = assets ? [...assets] : [];
 
-            const generatedFiles = generatedOutput.map((file) => {
-                const existingAsset:GeneratedAsset = _.find(assets, (asset:GeneratedAsset) => {
+            const generatedFiles = files.map((file) => {
+                const existingAsset: GeneratedAsset | undefined = _.find(assets, (asset: GeneratedAsset) => {
                     //Find assets case insensitive to handle OSX / Windows correctly
                     return asset.filename.toLowerCase() === file.filename.toLowerCase();
                 });
@@ -238,7 +256,7 @@ export class CodeWriter {
                     _.pull(assets, existingAsset);
                 }
 
-                return this._updateAssetFile(file, existingAsset);
+                return this._updateAssetFile(file, existingAsset, target);
             });
 
             if (assets) {
@@ -249,11 +267,10 @@ export class CodeWriter {
                 return generatedFiles;
             }
 
-
             this._writeAssetsFile(generatedFiles);
 
             return generatedFiles.filter((file) => {
-                const previousAsset:GeneratedAsset = _.find(previousAssets, (asset:GeneratedAsset) => {
+                const previousAsset: GeneratedAsset | undefined = _.find(previousAssets, (asset: GeneratedAsset) => {
                     return asset.filename.toLowerCase() === file.filename.toLowerCase();
                 });
 
@@ -268,8 +285,7 @@ export class CodeWriter {
 
                 return false;
             });
-
-        } catch(err:any) {
+        } catch (err: any) {
             console.error('Failed while generating code for block: %s', this._baseDir, err.stack);
             return [];
         }
