@@ -1,13 +1,10 @@
 {
-  "extends": "@tsconfig/node18/tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "declarationDir": "./types",
-    "declaration": true,
-    "esModuleInterop": true
-  },
-  "exclude": ["node_modules", "types", "dist"],
-  "include": [
-    "src/index.ts"
-  ]
+    "extends": "@tsconfig/node18/tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "declaration": true,
+        "esModuleInterop": true
+    },
+    "exclude": ["node_modules", "types", "dist"],
+    "include": ["src/index.ts"]
 }

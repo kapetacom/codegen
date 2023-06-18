@@ -1,3 +1,3 @@
-import {TargetRegistry} from './TargetRegistry';
+import { TargetRegistry } from './TargetRegistry';
 
 export const registry = new TargetRegistry();

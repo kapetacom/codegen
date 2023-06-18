@@ -1,13 +1,13 @@
-import {Deployment} from "@kapeta/schemas";
-import {TargetRegistry} from "./TargetRegistry";
-import {CodeGenerator, GeneratedAsset, GeneratedFile, Target} from "./types";
-import {registry as DefaultRegistry} from "./DefaultRegistry";
+import { Deployment } from '@kapeta/schemas';
+import { TargetRegistry } from './TargetRegistry';
+import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';
+import { registry as DefaultRegistry } from './DefaultRegistry';
 
 export class DeploymentCodeGenerator implements CodeGenerator {
     private readonly _data: Deployment;
     private readonly _registry: TargetRegistry;
 
-    constructor(deploymentData:Deployment, registry:TargetRegistry|null = null) {
+    constructor(deploymentData: Deployment, registry: TargetRegistry | null = null) {
         if (!deploymentData) {
             throw new Error('Deployment data was missing');
         }
@@ -27,7 +27,7 @@ export class DeploymentCodeGenerator implements CodeGenerator {
      * [{filename:"index.js", content:"..."}, ...]
      *
      */
-    public async generate():Promise<GeneratedFile[]> {
+    public async generate(): Promise<GeneratedResult> {
         if (!this._data.spec.target) {
             throw new Error('Deployment has no target');
         }
@@ -37,11 +37,9 @@ export class DeploymentCodeGenerator implements CodeGenerator {
         const target = new targetClass(this._data.spec.target.kind);
 
         return this.generateForTarget(target);
-
     }
 
-
-    public async postprocess(targetDir:string, assets:GeneratedAsset[]):Promise<void> {
+    public async postprocess(targetDir: string, assets: GeneratedAsset[]): Promise<void> {
         if (!this._data.spec.target) {
             throw new Error('Deployment has no target');
         }
@@ -55,23 +53,24 @@ export class DeploymentCodeGenerator implements CodeGenerator {
         }
     }
 
-    public async generateForTarget(target:Target):Promise<GeneratedFile[]> {
-
+    public async generateForTarget(target: Target): Promise<GeneratedResult> {
         const data = target.preprocess ? await target.preprocess(this._data) : this._data;
-        const result:GeneratedFile[] = target.generate(data, data);
+        const files: GeneratedFile[] = target.generate(data, data);
+        const out: GeneratedResult = {
+            target,
+            files,
+        };
 
         const spec = this._data.spec;
         if (spec.services) {
             for (const service of spec.services) {
                 try {
-                    result.push(
-                        ...target.generate(service, data)
-                    );
-                } catch (e:any) {
+                    files.push(...target.generate(service, data));
+                } catch (e: any) {
                     console.warn('Did not generate anything for service %s, Error: %s', service.kind, e.message);
                 }
             }
         }
-        return result;
+        return out;
     }
 }

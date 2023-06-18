@@ -1,18 +1,17 @@
-import {Target} from "./types";
+import { Target } from './types';
 
 export class TargetRegistry {
-    private _targets: {[key:string]:Target} = {};
+    private _targets: { [key: string]: Target } = {};
 
-
-    public reset():void {
+    public reset(): void {
         this._targets = {};
     }
 
-    public register(targetId:string, target:Target):void {
+    public register(targetId: string, target: Target): void {
         this._targets[targetId.toLowerCase()] = target;
     }
 
-    public async get(target:string):Promise<Target> {
+    public async get(target: string): Promise<Target> {
         const lcTarget = target.toLowerCase();
         if (!this._targets[lcTarget]) {
             //TODO: Attempt to download target if not available
