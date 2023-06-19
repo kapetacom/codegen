@@ -34,4 +34,5 @@ export interface GeneratedAsset {
     permissions: string;
     modified?: number;
     checksum?: string;
+    merged?: boolean;
 }

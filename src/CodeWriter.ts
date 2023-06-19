@@ -64,13 +64,16 @@ export class CodeWriter {
         const existingChecksum = this._getFileChecksum(destinationFile);
 
         if (existingChecksum && existingAsset) {
-            if (existingChecksum === existingAsset.checksum) {
+            if (existingChecksum === existingAsset.checksum &&
+                !existingAsset.merged) {
                 //File has not changed since we generated it - so ignore any mode and just overwrite
+                //Except if the file was merged - then it has diverged from the original generated file
                 mode = MODE_WRITE_ALWAYS;
             }
         }
 
         let writeNow = false;
+        let merged = false;
         switch (mode) {
             case MODE_MERGE:
                 //Merge files
@@ -89,6 +92,7 @@ export class CodeWriter {
                                 newFile
                             );
                             writeNow = true;
+                            merged = true;
                         } catch (e: any) {
                             console.warn(
                                 'Could not merge into %s yet - failed due to: %s. Skipping...',
@@ -125,6 +129,7 @@ export class CodeWriter {
             checksum: newChecksum,
             permissions,
             modified: new Date().getTime(),
+            merged
         };
 
         if (!writeNow) {
@@ -139,6 +144,7 @@ export class CodeWriter {
                 checksum: existingAsset.checksum,
                 permissions,
                 modified: existingAsset ? existingAsset.modified : new Date().getTime(),
+                merged: existingAsset ? existingAsset.merged : false
             };
         }
 
