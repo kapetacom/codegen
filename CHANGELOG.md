@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/kapetacom/codegen/compare/v1.0.0...v1.0.1) (2023-06-19)
+
+
+### Bug Fixes
+
+* Avoid overwriting previously merged assets ([#7](https://github.com/kapetacom/codegen/issues/7)) ([89f21ff](https://github.com/kapetacom/codegen/commit/89f21fff183711388fef46b8dfcd80b7fee2960a))
+
 # 1.0.0 (2023-06-18)
 
 
