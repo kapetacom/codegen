@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/kapetacom/codegen/compare/v1.0.1...v1.1.0) (2023-06-27)
+
+
+### Features
+
+* Added postprocessing for specific target ([a152983](https://github.com/kapetacom/codegen/commit/a1529832fe8e7e7bcbd32c0e1fccdd1b2a2844d5))
+
 ## [1.0.1](https://github.com/kapetacom/codegen/compare/v1.0.0...v1.0.1) (2023-06-19)
 
 
