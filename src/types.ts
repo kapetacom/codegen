@@ -9,6 +9,8 @@ export interface Target {
 export interface CodeGenerator {
     generate(): Promise<GeneratedResult>;
     generateForTarget(target: Target): Promise<GeneratedResult>;
+    postprocess(targetDir: string, assets: GeneratedAsset[]): Promise<void>;
+    postprocessForTarget(targetDir: string, assets: GeneratedAsset[], target:Target): Promise<void>;
 }
 
 export interface SourceFile {

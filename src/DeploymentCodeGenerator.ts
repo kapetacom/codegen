@@ -48,6 +48,10 @@ export class DeploymentCodeGenerator implements CodeGenerator {
 
         const target = new targetClass(this._data.spec.target.kind);
 
+        return this.postprocessForTarget(targetDir, assets, target);
+    }
+
+    public async postprocessForTarget(targetDir: string, assets: GeneratedAsset[], target:Target): Promise<void> {
         if (target.postprocess) {
             await target.postprocess(targetDir, assets);
         }
