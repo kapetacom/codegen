@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/kapetacom/codegen/compare/v1.1.0...v1.1.1) (2023-09-20)
+
+
+### Bug Fixes
+
+* Clean up empty folders when updating generated code ([#8](https://github.com/kapetacom/codegen/issues/8)) ([8dec127](https://github.com/kapetacom/codegen/commit/8dec12747d5d0b68745297361e178a1c336288b2))
+
 # [1.1.0](https://github.com/kapetacom/codegen/compare/v1.0.1...v1.1.0) (2023-06-27)
 
 
