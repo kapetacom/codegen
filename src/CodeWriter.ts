@@ -233,9 +233,25 @@ export class CodeWriter {
                 if (FS.existsSync(fullPath)) {
                     console.log('Cleaning up unused kapeta asset file: %s', asset.filename);
                     FS.unlinkSync(fullPath);
+                    const folder = Path.dirname(fullPath);
+                    // We delete empty folders recursively, so we don't leave any empty folders behind
+                    this.deleteEmptyFolder(folder);
                 }
             }
         });
+    }
+
+    private isFolderEmpty(path: string): boolean {
+        const files = FS.readdirSync(path);
+        return files.length === 0;
+    }
+
+    private deleteEmptyFolder(path: string): void {
+        if (FS.existsSync(path) &&
+            this.isFolderEmpty(path)) {
+            FS.rmdirSync(path);
+            return this.deleteEmptyFolder(Path.dirname(path));
+        }
     }
 
     /**
