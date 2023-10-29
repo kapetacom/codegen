@@ -48,3 +48,7 @@ registry.register('target-identifier', TargetClass);
 ```
 
 TargetClass is expected to extend `Target` which is found in the `@kapeta/codegen-target` module: https://github.com/kapetacom/codegen-target/blob/master/src/Target.js
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

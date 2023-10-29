@@ -1,3 +1,8 @@
+/**
+ * Copyright 2023 Kapeta Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 export interface Target {
     new (options: any): Target;
     generate: (data: any, context: any) => GeneratedFile[];
