@@ -1,3 +1,8 @@
+/**
+ * Copyright 2023 Kapeta Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { BlockDefinition } from '@kapeta/schemas';
 import { TargetRegistry } from './TargetRegistry';
 import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';

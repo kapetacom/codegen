@@ -1,3 +1,8 @@
+/**
+ * Copyright 2023 Kapeta Inc.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';
 
 import * as mkdirp from 'mkdirp';
