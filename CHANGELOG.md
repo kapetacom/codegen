@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/kapetacom/codegen/compare/v1.1.1...v1.1.2) (2023-11-15)
+
+
+### Bug Fixes
+
+* Parse kinds correctly ([#10](https://github.com/kapetacom/codegen/issues/10)) ([e2a2443](https://github.com/kapetacom/codegen/commit/e2a24432d8d7aafc92992aeaac675a30ed1ed123))
+
 ## [1.1.1](https://github.com/kapetacom/codegen/compare/v1.1.0...v1.1.1) (2023-09-20)
 
 
