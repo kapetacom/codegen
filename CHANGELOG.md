@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/kapetacom/codegen/compare/v1.2.0...v1.2.1) (2023-12-30)
+
+
+### Bug Fixes
+
+* Avoid lots of empty dirs and asset merge cache files gets created ([#12](https://github.com/kapetacom/codegen/issues/12)) ([95cad45](https://github.com/kapetacom/codegen/commit/95cad45e8b66a23e5c962bc865310f4820b43014))
+
 # [1.2.0](https://github.com/kapetacom/codegen/compare/v1.1.2...v1.2.0) (2023-12-30)
 
 
