@@ -6,7 +6,7 @@
 import * as Path from 'path';
 import * as FS from 'fs';
 import { CodeGenerator } from './types';
-import { CodeWriter } from './CodeWriter';
+import { CodeWriter, MODE_MERGE } from './CodeWriter';
 import { Stats } from 'fs';
 
 function toUnixPermissions(statsMode: number) {
@@ -53,7 +53,12 @@ export async function testCodeGenFor(target: any, generator: CodeGenerator, base
         allFiles = walkDirectory(basedir);
     }
 
+    const mergeFiles: string[] = [];
+
     results.files.forEach((result) => {
+        if (result.mode === MODE_MERGE) {
+            mergeFiles.push(result.filename);
+        }
         const fullPath = Path.join(basedir, result.filename);
         const expected = FS.readFileSync(fullPath).toString();
         const stat = FS.statSync(fullPath);
@@ -67,5 +72,17 @@ export async function testCodeGenFor(target: any, generator: CodeGenerator, base
             allFiles.splice(ix, 1);
         }
     });
+
+    // Also verify the merges have created merge cache files
+    allFiles
+        .filter((path) => path.includes('/.kapeta/merged/'))
+        .forEach((path) => {
+            const [, filename] = path.split('/.kapeta/merged/');
+            if (mergeFiles.includes(filename)) {
+                allFiles.splice(allFiles.indexOf(filename), 1);
+                return;
+            }
+        });
+
     expect(allFiles).toEqual([]);
 }

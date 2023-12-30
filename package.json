@@ -19,8 +19,8 @@
     "main": "./dist/cjs/index.js",
     "scripts": {
         "clean": "rm -rf ./dist",
-        "build:esm": "tsc --module esnext --moduleResolution bundler --outDir ./dist/esm && echo '{\"type\":\"module\"}' > ./dist/esm/package.json",
-        "build:cjs": "tsc --module commonjs --moduleResolution node10 --outDir ./dist/cjs && echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json",
+        "build:esm": "tsc --project tsconfig.build.json --module esnext --moduleResolution bundler --outDir ./dist/esm && echo '{\"type\":\"module\"}' > ./dist/esm/package.json",
+        "build:cjs": "tsc --project tsconfig.build.json --module commonjs --moduleResolution node10 --outDir ./dist/cjs && echo '{\"type\":\"commonjs\"}' > ./dist/cjs/package.json",
         "build": "npm run clean && npm run build:esm && npm run build:cjs",
         "format": "prettier --write .",
         "test": "jest src",

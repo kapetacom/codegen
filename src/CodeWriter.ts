@@ -26,6 +26,7 @@ export interface FileSystemHandler {
     exists: (filename: string) => boolean;
     removeFile: (filename: string) => void;
     removeDir: (filename: string) => void;
+    mkdirp: (dirname: string) => void;
 }
 
 const DefaultFileSystemHandler: FileSystemHandler = {
@@ -34,6 +35,7 @@ const DefaultFileSystemHandler: FileSystemHandler = {
     readDir: (filename: string) => FS.readdirSync(filename),
     removeFile: (filename: string) => FS.unlinkSync(filename),
     removeDir: (filename: string) => FS.rmdirSync(filename),
+    mkdirp: (dirname: string) => mkdirp.sync(dirname),
     write: (filename, content, permissions) => {
         const opts = permissions
             ? {
@@ -75,7 +77,7 @@ export class CodeWriter {
      */
     private _ensureDestinationFolder(filename: string): string {
         const destinationFile = Path.join(this._baseDir, filename);
-        mkdirp.sync(Path.dirname(destinationFile));
+        this.fs.mkdirp(Path.dirname(destinationFile));
 
         return destinationFile;
     }
@@ -116,7 +118,8 @@ export class CodeWriter {
             }
         }
         const originalFile = newFile;
-        const lastFilePath = this._ensureDestinationFolder(CodeWriter.getInternalMergePath(newFile.filename));
+        const lastFileName = CodeWriter.getInternalMergePath(newFile.filename);
+        const lastFilePath = Path.join(this._baseDir, lastFileName);
         let writeNow = false;
         let merged = false;
         switch (mode) {
@@ -177,6 +180,7 @@ export class CodeWriter {
         if (newFile.mode === MODE_MERGE) {
             // We always write the last file to the merge folder
             // so we can use that when determining what the user changed directly
+            this._ensureDestinationFolder(lastFileName);
             this._writeFile(lastFilePath, originalFile.content, originalFile.permissions);
         }
 
