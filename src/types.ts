@@ -3,19 +3,22 @@
  * SPDX-License-Identifier: MIT
  */
 
-export interface Target {
-    new (options: any): Target;
+export interface TargetMethods {
     generate: (data: any, context: any) => GeneratedFile[];
     preprocess?: (data: any) => Promise<any>;
     postprocess?: (targetDir: string, files: GeneratedAsset[]) => Promise<void>;
-    mergeFile?: (sourceFile: SourceFile, newFile: GeneratedFile) => GeneratedFile;
+    mergeFile?: (sourceFile: SourceFile, newFile: GeneratedFile, lastFile: GeneratedFile | null) => GeneratedFile;
+}
+
+export interface Target extends TargetMethods {
+    new (options: any): Target;
 }
 
 export interface CodeGenerator {
     generate(): Promise<GeneratedResult>;
     generateForTarget(target: Target): Promise<GeneratedResult>;
     postprocess(targetDir: string, assets: GeneratedAsset[]): Promise<void>;
-    postprocessForTarget(targetDir: string, assets: GeneratedAsset[], target:Target): Promise<void>;
+    postprocessForTarget(targetDir: string, assets: GeneratedAsset[], target: Target): Promise<void>;
 }
 
 export interface SourceFile {
@@ -24,7 +27,7 @@ export interface SourceFile {
     permissions: string;
 }
 export interface GeneratedResult {
-    target: Target;
+    target: TargetMethods;
     files: GeneratedFile[];
 }
 

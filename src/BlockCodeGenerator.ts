@@ -5,7 +5,7 @@
 
 import { BlockDefinition } from '@kapeta/schemas';
 import { TargetRegistry } from './TargetRegistry';
-import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';
+import { CodeGenerator, GeneratedAsset, GeneratedResult, TargetMethods } from './types';
 import { registry as DefaultRegistry } from './DefaultRegistry';
 
 const ENTITY_KIND = 'core/entity';
@@ -57,13 +57,17 @@ export class BlockCodeGenerator implements CodeGenerator {
         return this.postprocessForTarget(targetDir, assets, target);
     }
 
-    public async postprocessForTarget(targetDir: string, assets: GeneratedAsset[], target:Target): Promise<void> {
+    public async postprocessForTarget(
+        targetDir: string,
+        assets: GeneratedAsset[],
+        target: TargetMethods
+    ): Promise<void> {
         if (target.postprocess) {
             await target.postprocess(targetDir, assets);
         }
     }
 
-    public async generateForTarget(target: Target): Promise<GeneratedResult> {
+    public async generateForTarget(target: TargetMethods): Promise<GeneratedResult> {
         const files = target.generate(this._data, this._data);
         const out: GeneratedResult = {
             files,

@@ -5,7 +5,7 @@
 
 import { Deployment } from '@kapeta/schemas';
 import { TargetRegistry } from './TargetRegistry';
-import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';
+import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, TargetMethods } from './types';
 import { registry as DefaultRegistry } from './DefaultRegistry';
 
 export class DeploymentCodeGenerator implements CodeGenerator {
@@ -56,13 +56,17 @@ export class DeploymentCodeGenerator implements CodeGenerator {
         return this.postprocessForTarget(targetDir, assets, target);
     }
 
-    public async postprocessForTarget(targetDir: string, assets: GeneratedAsset[], target:Target): Promise<void> {
+    public async postprocessForTarget(
+        targetDir: string,
+        assets: GeneratedAsset[],
+        target: TargetMethods
+    ): Promise<void> {
         if (target.postprocess) {
             await target.postprocess(targetDir, assets);
         }
     }
 
-    public async generateForTarget(target: Target): Promise<GeneratedResult> {
+    public async generateForTarget(target: TargetMethods): Promise<GeneratedResult> {
         const data = target.preprocess ? await target.preprocess(this._data) : this._data;
         const files: GeneratedFile[] = target.generate(data, data);
         const out: GeneratedResult = {
