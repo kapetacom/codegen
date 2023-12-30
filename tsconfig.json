@@ -5,6 +5,5 @@
         "declaration": true,
         "esModuleInterop": true
     },
-    "exclude": ["node_modules", "types", "dist"],
-    "include": ["src/index.ts"]
+    "exclude": ["node_modules", "types", "dist", "**/*.test.ts"]
 }

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { GeneratedAsset, GeneratedFile, GeneratedResult, Target } from './types';
+import { GeneratedAsset, GeneratedFile, GeneratedResult, SourceFile, Target, TargetMethods } from './types';
 
 import * as mkdirp from 'mkdirp';
 import Path from 'path';
@@ -12,28 +12,68 @@ import YAML from 'yaml';
 import _ from 'lodash';
 import checksum from 'checksum';
 
-const ASSETS_FILE = '.kapeta/generated-files.yml';
-const MODE_MERGE = 'merge';
-const MODE_CREATE_ONLY = 'create-only';
-const MODE_WRITE_ALWAYS = 'write-always';
+const KAPETA_FOLDER = '.kapeta';
+export const ASSETS_FILE = Path.join(KAPETA_FOLDER, 'generated-files.yml');
+export const MODE_MERGE = 'merge';
+export const MODE_CREATE_ONLY = 'create-only';
+export const MODE_WRITE_ALWAYS = 'write-always';
+export const DEFAULT_FILE_PERMISSIONS = '644';
+
+export interface FileSystemHandler {
+    write: (filename: string, content: string, permissions?: string) => void;
+    read: (filename: string) => string;
+    readDir: (filename: string) => string[];
+    exists: (filename: string) => boolean;
+    removeFile: (filename: string) => void;
+    removeDir: (filename: string) => void;
+}
+
+const DefaultFileSystemHandler: FileSystemHandler = {
+    exists: (filename: string) => FS.existsSync(filename),
+    read: (filename: string) => FS.readFileSync(filename).toString(),
+    readDir: (filename: string) => FS.readdirSync(filename),
+    removeFile: (filename: string) => FS.unlinkSync(filename),
+    removeDir: (filename: string) => FS.rmdirSync(filename),
+    write: (filename, content, permissions) => {
+        const opts = permissions
+            ? {
+                  mode: parseInt(permissions, 8),
+              }
+            : {};
+        FS.writeFileSync(filename, content, opts);
+    },
+};
 
 export interface CodeWriterOptions {
     skipAssetsFile?: boolean;
+    fileSystemHandler?: FileSystemHandler;
 }
 
 export class CodeWriter {
     private readonly _baseDir: string;
-    private readonly _options: CodeWriterOptions;
+    private readonly _options: Required<CodeWriterOptions>;
+
+    static getInternalMergePath(filename: string): string {
+        return Path.join(KAPETA_FOLDER, 'merged', filename);
+    }
 
     constructor(basedir: string, options?: CodeWriterOptions) {
         this._baseDir = basedir;
-        this._options = options ? options : {};
+        this._options = {
+            fileSystemHandler: DefaultFileSystemHandler,
+            skipAssetsFile: false,
+            ...options,
+        };
+    }
+
+    private get fs(): FileSystemHandler {
+        return this._options.fileSystemHandler;
     }
 
     /**
      * Ensures the target folder exists and returns the full path
      */
-    private _createDestinationFolder(filename: string): string {
+    private _ensureDestinationFolder(filename: string): string {
         const destinationFile = Path.join(this._baseDir, filename);
         mkdirp.sync(Path.dirname(destinationFile));
 
@@ -44,11 +84,11 @@ export class CodeWriter {
      * Get a file checksum from its contents
      */
     private _getFileChecksum(path: string): string | null {
-        if (!FS.existsSync(path)) {
+        if (!this.fs.exists(path)) {
             return null;
         }
 
-        const content = FS.readFileSync(path).toString();
+        const content = this.fs.read(path);
 
         return checksum(content);
     }
@@ -61,22 +101,22 @@ export class CodeWriter {
     private _updateAssetFile(
         newFile: GeneratedFile,
         existingAsset: GeneratedAsset | undefined,
-        target: Target
+        target: TargetMethods
     ): GeneratedAsset {
-        const destinationFile = this._createDestinationFolder(newFile.filename);
+        const destinationFile = this._ensureDestinationFolder(newFile.filename);
         let mode = newFile.mode;
-        const destinationExists = FS.existsSync(destinationFile);
+        const destinationExists = this.fs.exists(destinationFile);
         const existingChecksum = this._getFileChecksum(destinationFile);
 
         if (existingChecksum && existingAsset) {
-            if (existingChecksum === existingAsset.checksum &&
-                !existingAsset.merged) {
+            if (existingChecksum === existingAsset.checksum && !existingAsset.merged) {
                 //File has not changed since we generated it - so ignore any mode and just overwrite
                 //Except if the file was merged - then it has diverged from the original generated file
                 mode = MODE_WRITE_ALWAYS;
             }
         }
-
+        const originalFile = newFile;
+        const lastFilePath = this._ensureDestinationFolder(CodeWriter.getInternalMergePath(newFile.filename));
         let writeNow = false;
         let merged = false;
         switch (mode) {
@@ -87,15 +127,26 @@ export class CodeWriter {
                     writeNow = false;
                     if (target.mergeFile) {
                         try {
-                            const existingContent = FS.readFileSync(destinationFile).toString();
-                            newFile = target.mergeFile(
-                                {
-                                    filename: existingAsset.filename,
-                                    content: existingContent,
+                            // We store the previous original file in the merged folder
+                            // so we can use that when determining what the user changed directly
+
+                            let lastFile: GeneratedFile | null = null;
+                            if (this.fs.exists(lastFilePath)) {
+                                lastFile = {
+                                    filename: newFile.filename,
+                                    content: this.fs.read(lastFilePath),
                                     permissions: existingAsset.permissions,
-                                },
-                                newFile
-                            );
+                                    mode: MODE_MERGE,
+                                };
+                            }
+                            const existingContent = this.fs.read(destinationFile);
+                            const sourceFile: SourceFile = {
+                                filename: existingAsset.filename,
+                                content: existingContent,
+                                permissions: existingAsset.permissions,
+                            };
+
+                            newFile = target.mergeFile(sourceFile, newFile, lastFile);
                             writeNow = true;
                             merged = true;
                         } catch (e: any) {
@@ -123,9 +174,15 @@ export class CodeWriter {
                 break;
         }
 
+        if (newFile.mode === MODE_MERGE) {
+            // We always write the last file to the merge folder
+            // so we can use that when determining what the user changed directly
+            this._writeFile(lastFilePath, originalFile.content, originalFile.permissions);
+        }
+
         let permissions = newFile.permissions;
         if (!permissions) {
-            permissions = '644';
+            permissions = DEFAULT_FILE_PERMISSIONS;
         }
         const newChecksum = checksum(newFile.content);
         const newAsset: GeneratedAsset = {
@@ -134,7 +191,7 @@ export class CodeWriter {
             checksum: newChecksum,
             permissions,
             modified: new Date().getTime(),
-            merged
+            merged,
         };
 
         if (!writeNow) {
@@ -149,7 +206,7 @@ export class CodeWriter {
                 checksum: existingAsset.checksum,
                 permissions,
                 modified: existingAsset ? existingAsset.modified : new Date().getTime(),
-                merged: existingAsset ? existingAsset.merged : false
+                merged: existingAsset ? existingAsset.merged : false,
             };
         }
 
@@ -162,14 +219,16 @@ export class CodeWriter {
         if (destinationExists && existingAsset) {
             // We delete this always since this might be changing casing and on OSX / Windows
             // the FS does not register that as an actual change (case-insensitive systems)
-            FS.unlinkSync(Path.join(this._baseDir, existingAsset.filename));
+            this.fs.removeFile(Path.join(this._baseDir, existingAsset.filename));
         }
 
-        FS.writeFileSync(destinationFile, newFile.content, {
-            mode: parseInt(permissions, 8),
-        });
+        this._writeFile(destinationFile, newFile.content, permissions);
 
         return newAsset;
+    }
+
+    private _writeFile(filename: string, content: string, permissions: string): void {
+        this.fs.write(filename, content, permissions);
     }
 
     /**
@@ -180,11 +239,11 @@ export class CodeWriter {
     private _readAssetsFile(): { assets: GeneratedAsset[] } {
         const fullPath = Path.join(this._baseDir, ASSETS_FILE);
 
-        if (!FS.existsSync(fullPath)) {
+        if (!this.fs.exists(fullPath)) {
             return { assets: [] };
         }
         try {
-            const yamlRaw = FS.readFileSync(fullPath).toString();
+            const yamlRaw = this.fs.read(fullPath);
             return YAML.parse(yamlRaw);
         } catch (err: any) {
             console.error('Failed to parse assets file:', err.stack);
@@ -208,11 +267,11 @@ export class CodeWriter {
             }),
         ].join('\n');
 
-        const fullPath = this._createDestinationFolder(ASSETS_FILE);
+        const fullPath = this._ensureDestinationFolder(ASSETS_FILE);
 
         console.log('Writing assets file: %s', fullPath);
 
-        FS.writeFileSync(fullPath, content);
+        this.fs.write(fullPath, content);
     }
 
     /**
@@ -231,30 +290,35 @@ export class CodeWriter {
         oldAssets.forEach((asset) => {
             // We only clean up files automatically if they should be
             // overwritten or they do not have any manual changes
-            const canDelete = asset.mode !== MODE_CREATE_ONLY || !this._hasManualChanges(asset);
+            const canDelete = asset.mode === MODE_WRITE_ALWAYS || !this._hasManualChanges(asset);
 
             if (canDelete) {
                 const fullPath = Path.join(this._baseDir, asset.filename);
-                if (FS.existsSync(fullPath)) {
+                const mergePath = Path.join(this._baseDir, CodeWriter.getInternalMergePath(asset.filename));
+                if (this.fs.exists(fullPath)) {
                     console.log('Cleaning up unused kapeta asset file: %s', asset.filename);
-                    FS.unlinkSync(fullPath);
+                    this.fs.removeFile(fullPath);
                     const folder = Path.dirname(fullPath);
                     // We delete empty folders recursively, so we don't leave any empty folders behind
                     this.deleteEmptyFolder(folder);
+                }
+
+                if (this.fs.exists(mergePath)) {
+                    // Also cleanup merge file info
+                    this.fs.removeFile(mergePath);
                 }
             }
         });
     }
 
     private isFolderEmpty(path: string): boolean {
-        const files = FS.readdirSync(path);
+        const files = this.fs.readDir(path);
         return files.length === 0;
     }
 
     private deleteEmptyFolder(path: string): void {
-        if (FS.existsSync(path) &&
-            this.isFolderEmpty(path)) {
-            FS.rmdirSync(path);
+        if (this.fs.exists(path) && this.isFolderEmpty(path)) {
+            this.fs.removeDir(path);
             return this.deleteEmptyFolder(Path.dirname(path));
         }
     }
