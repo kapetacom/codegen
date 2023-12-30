@@ -53,6 +53,10 @@ class TestFileSystemHandler implements FileSystemHandler {
         return this.files[filename].content;
     }
 
+    mkdirp(dirname: string) {
+        // No-op
+    }
+
     readDir(filename: string) {
         return Object.entries(this.files)
             .filter(([path, file]) => {
