@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/kapetacom/codegen/compare/v1.1.2...v1.2.0) (2023-12-30)
+
+
+### Features
+
+* Add merge cache to be able to compare to previously generated files ([#11](https://github.com/kapetacom/codegen/issues/11)) ([3d05f5b](https://github.com/kapetacom/codegen/commit/3d05f5bf1281e51c9ac9eb464a8ab46dd003805c))
+
 ## [1.1.2](https://github.com/kapetacom/codegen/compare/v1.1.1...v1.1.2) (2023-11-15)
 
 ### Bug Fixes

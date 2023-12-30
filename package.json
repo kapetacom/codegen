@@ -1,6 +1,6 @@
 {
     "name": "@kapeta/codegen",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "description": "Kapeta code generator module",
     "type": "commonjs",
     "exports": {
