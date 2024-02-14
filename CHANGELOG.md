@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/kapetacom/codegen/compare/v1.2.1...v1.3.0) (2024-02-14)
+
+
+### Features
+
+* Add support for buffers (and native files) ([#13](https://github.com/kapetacom/codegen/issues/13)) ([fcf5c79](https://github.com/kapetacom/codegen/commit/fcf5c79cb69374d2d441774c68653b641726343b))
+
 ## [1.2.1](https://github.com/kapetacom/codegen/compare/v1.2.0...v1.2.1) (2023-12-30)
 
 
