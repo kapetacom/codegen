@@ -21,7 +21,7 @@ const BASEDIR = '$tmp';
 
 interface TestFile {
     filename: string;
-    content: string;
+    content: Buffer;
     permissions: string;
 }
 
@@ -38,10 +38,10 @@ class TestFileSystemHandler implements FileSystemHandler {
         return this.listFiles().length;
     }
 
-    write(filename: string, content: string, permissions?: string) {
+    write(filename: string, content: string | Buffer, permissions?: string) {
         this.files[filename] = {
             filename,
-            content,
+            content: Buffer.from(content),
             permissions: permissions || DEFAULT_FILE_PERMISSIONS,
         };
     }
@@ -88,9 +88,9 @@ const TestTarget: TargetMethods = {
         if (!sourceFile.filename.endsWith('.json')) {
             throw new Error('Only json files are supported');
         }
-        const srcData = JSON.parse(sourceFile.content);
-        const lastData = lastFile ? JSON.parse(lastFile.content) : null;
-        const newData = JSON.parse(newFile.content);
+        const srcData = JSON.parse(sourceFile.content.toString());
+        const lastData = lastFile ? JSON.parse(lastFile.content.toString()) : null;
+        const newData = JSON.parse(newFile.content.toString());
 
         Object.entries(newData).forEach(([key, value]) => {
             if (lastData) {
@@ -279,12 +279,14 @@ describe('CodeWriter', () => {
 
         const sourceFile: SourceFile = {
             filename,
-            content: JSON.stringify({
-                last1: 'last value 1',
-                last2: 'user changed last 2',
-                last3: 'last value 3',
-                user1: 'user value 1',
-            }),
+            content: Buffer.from(
+                JSON.stringify({
+                    last1: 'last value 1',
+                    last2: 'user changed last 2',
+                    last3: 'last value 3',
+                    user1: 'user value 1',
+                })
+            ),
             permissions: DEFAULT_FILE_PERMISSIONS,
         };
 
@@ -308,7 +310,7 @@ describe('CodeWriter', () => {
 
         const assets = writer.write(result);
         const newSrc = fileSystemHandler.read(srcFilePath);
-        expect(newSrc).toBe(
+        expect(newSrc.toString()).toBe(
             JSON.stringify({
                 last1: 'last value 1B',
                 last2: 'user changed last 2',
@@ -324,7 +326,7 @@ describe('CodeWriter', () => {
         ]);
 
         const lastSrc = fileSystemHandler.read(lastFilePath);
-        expect(lastSrc).toBe(newFile.content);
+        expect(lastSrc.toString()).toBe(newFile.content);
 
         expect(assets).toHaveLength(1);
         expect(assets[0].merged).toBe(true);

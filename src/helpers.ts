@@ -8,6 +8,7 @@ import * as FS from 'fs';
 import { CodeGenerator } from './types';
 import { CodeWriter, MODE_MERGE } from './CodeWriter';
 import { Stats } from 'fs';
+import { expect } from '@jest/globals';
 
 function toUnixPermissions(statsMode: number) {
     return (statsMode & parseInt('777', 8)).toString(8);
@@ -60,11 +61,15 @@ export async function testCodeGenFor(target: any, generator: CodeGenerator, base
             mergeFiles.push(result.filename);
         }
         const fullPath = Path.join(basedir, result.filename);
-        const expected = FS.readFileSync(fullPath).toString();
+        const expected = FS.readFileSync(fullPath);
         const stat = FS.statSync(fullPath);
         console.log(`Comparing files: ${fullPath}`);
         expect(toUnixPermissions(stat.mode)).toBe(result.permissions);
-        expect(expected).toBe(result.content);
+        if (result.content instanceof Buffer) {
+            expect(expected.equals(result.content)).toBeTruthy();
+        } else {
+            expect(expected.toString()).toBe(result.content);
+        }
 
         const ix = allFiles.indexOf(fullPath);
         expect(allFiles).toContain(fullPath);

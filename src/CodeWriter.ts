@@ -20,8 +20,8 @@ export const MODE_WRITE_ALWAYS = 'write-always';
 export const DEFAULT_FILE_PERMISSIONS = '644';
 
 export interface FileSystemHandler {
-    write: (filename: string, content: string, permissions?: string) => void;
-    read: (filename: string) => string;
+    write: (filename: string, content: string | Buffer, permissions?: string) => void;
+    read: (filename: string) => Buffer;
     readDir: (filename: string) => string[];
     exists: (filename: string) => boolean;
     removeFile: (filename: string) => void;
@@ -31,7 +31,7 @@ export interface FileSystemHandler {
 
 const DefaultFileSystemHandler: FileSystemHandler = {
     exists: (filename: string) => FS.existsSync(filename),
-    read: (filename: string) => FS.readFileSync(filename).toString(),
+    read: (filename: string) => FS.readFileSync(filename),
     readDir: (filename: string) => FS.readdirSync(filename),
     removeFile: (filename: string) => FS.unlinkSync(filename),
     removeDir: (filename: string) => FS.rmdirSync(filename),
@@ -231,7 +231,7 @@ export class CodeWriter {
         return newAsset;
     }
 
-    private _writeFile(filename: string, content: string, permissions: string): void {
+    private _writeFile(filename: string, content: string | Buffer, permissions: string): void {
         this.fs.write(filename, content, permissions);
     }
 
@@ -248,7 +248,7 @@ export class CodeWriter {
         }
         try {
             const yamlRaw = this.fs.read(fullPath);
-            return YAML.parse(yamlRaw);
+            return YAML.parse(yamlRaw.toString());
         } catch (err: any) {
             console.error('Failed to parse assets file:', err.stack);
             return { assets: [] };

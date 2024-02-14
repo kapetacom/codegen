@@ -23,7 +23,7 @@ export interface CodeGenerator {
 
 export interface SourceFile {
     filename: string;
-    content: string;
+    content: Buffer;
     permissions: string;
 }
 export interface GeneratedResult {
@@ -33,7 +33,7 @@ export interface GeneratedResult {
 
 export interface GeneratedFile {
     filename: string;
-    content: string;
+    content: string | Buffer;
     mode: string;
     permissions: string;
 }
