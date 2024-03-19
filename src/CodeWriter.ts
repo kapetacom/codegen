@@ -26,6 +26,7 @@ export interface FileSystemHandler {
     exists: (filename: string) => boolean;
     removeFile: (filename: string) => void;
     removeDir: (filename: string) => void;
+    stat: (filename: string) => FS.Stats;
     mkdirp: (dirname: string) => void;
 }
 
@@ -36,6 +37,7 @@ const DefaultFileSystemHandler: FileSystemHandler = {
     removeFile: (filename: string) => FS.unlinkSync(filename),
     removeDir: (filename: string) => FS.rmdirSync(filename),
     mkdirp: (dirname: string) => mkdirp.sync(dirname),
+    stat: (filename: string) => FS.statSync(filename),
     write: (filename, content, permissions) => {
         const opts = permissions
             ? {
@@ -126,7 +128,7 @@ export class CodeWriter {
             case MODE_MERGE:
                 //Merge files
                 writeNow = true;
-                if (destinationExists && existingAsset) {
+                if (destinationExists) {
                     writeNow = false;
                     if (target.mergeFile) {
                         try {
@@ -138,15 +140,16 @@ export class CodeWriter {
                                 lastFile = {
                                     filename: newFile.filename,
                                     content: this.fs.read(lastFilePath),
-                                    permissions: existingAsset.permissions,
+                                    permissions: existingAsset?.permissions || DEFAULT_FILE_PERMISSIONS,
                                     mode: MODE_MERGE,
                                 };
                             }
                             const existingContent = this.fs.read(destinationFile);
+                            const existingPermissions = this.fs.stat(destinationFile).mode.toString(8).slice(-3);
                             const sourceFile: SourceFile = {
-                                filename: existingAsset.filename,
+                                filename: newFile.filename,
                                 content: existingContent,
-                                permissions: existingAsset.permissions,
+                                permissions: existingPermissions,
                             };
 
                             newFile = target.mergeFile(sourceFile, newFile, lastFile);
