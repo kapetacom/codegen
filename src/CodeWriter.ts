@@ -145,6 +145,7 @@ export class CodeWriter {
                                 };
                             }
                             const existingContent = this.fs.read(destinationFile);
+                            // Convert file permissions from octal number to base10 string and remove 100 prefix
                             const existingPermissions = this.fs.stat(destinationFile).mode.toString(8).slice(-3);
                             const sourceFile: SourceFile = {
                                 filename: newFile.filename,

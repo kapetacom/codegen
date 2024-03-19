@@ -16,6 +16,7 @@ import { GeneratedFile, GeneratedResult, SourceFile, TargetMethods } from './typ
 import Path from 'node:path';
 import YAML from 'yaml';
 import checksum from 'checksum';
+import { Stats } from 'fs';
 
 const BASEDIR = '$tmp';
 
@@ -77,6 +78,11 @@ class TestFileSystemHandler implements FileSystemHandler {
         this.readDir(filename).forEach((path) => {
             delete this.files[path];
         });
+    }
+    stat(filename: string) {
+        return {
+            mode: 33188,
+        } as Stats;
     }
 }
 
