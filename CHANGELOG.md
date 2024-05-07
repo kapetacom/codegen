@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/kapetacom/codegen/compare/v1.3.1...v1.3.2) (2024-05-07)
+
+
+### Bug Fixes
+
+* merge file splice bug ([fe86835](https://github.com/kapetacom/codegen/commit/fe86835112f7f41c2e6e21a243958919852add44))
+
 ## [1.3.1](https://github.com/kapetacom/codegen/compare/v1.3.0...v1.3.1) (2024-03-19)
 
 
