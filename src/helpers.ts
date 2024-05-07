@@ -42,7 +42,7 @@ export function walkDirectory(dir: string): string[] {
     return results;
 }
 
-export async function testCodeGenFor(target: any, generator: CodeGenerator, basedir: string) {
+export async function testCodeGenFor(target: any, generator: CodeGenerator, basedir: string, allFilesFilter: (path: string) => boolean = (path) => true) {
     const results = await generator.generateForTarget(target);
     /* eslint-disable-next-line @typescript-eslint/no-var-requires */
     const { expect } = require('@jest/globals');
@@ -84,10 +84,10 @@ export async function testCodeGenFor(target: any, generator: CodeGenerator, base
         .forEach((path) => {
             const [, filename] = path.split('/.kapeta/merged/');
             if (mergeFiles.includes(filename)) {
-                allFiles.splice(allFiles.indexOf(filename), 1);
+                allFiles.splice(allFiles.indexOf(path), 1);
                 return;
             }
         });
 
-    expect(allFiles).toEqual([]);
+    expect(allFiles.filter((path) => allFilesFilter(path))).toEqual([]);
 }
