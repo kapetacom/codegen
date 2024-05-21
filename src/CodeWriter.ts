@@ -198,12 +198,13 @@ export class CodeWriter {
             permissions = DEFAULT_FILE_PERMISSIONS;
         }
         const newChecksum = checksum(newFile.content);
+        const wasChanged = existingChecksum && existingChecksum !== newChecksum;
         const newAsset: GeneratedAsset = {
             filename: newFile.filename,
             mode: newFile.mode,
             checksum: newChecksum,
             permissions,
-            modified: new Date().getTime(),
+            modified: !wasChanged && existingAsset ? existingAsset.modified : new Date().getTime(),
             merged,
         };
 
