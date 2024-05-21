@@ -5,7 +5,7 @@
 
 import { BlockDefinition } from '@kapeta/schemas';
 import { TargetRegistry } from './TargetRegistry';
-import { CodeGenerator, GeneratedAsset, GeneratedResult, TargetMethods } from './types';
+import { CodeGenerator, GeneratedAsset, GeneratedResult, Target, TargetMethods } from './types';
 import { registry as DefaultRegistry } from './DefaultRegistry';
 
 const ENTITY_KIND = 'core/entity';
@@ -13,6 +13,7 @@ const ENTITY_KIND = 'core/entity';
 export class BlockCodeGenerator implements CodeGenerator {
     private readonly _data: BlockDefinition;
     private readonly _registry: TargetRegistry;
+    private additionalOptions: { [key: string]: any } = {};
 
     constructor(blockData: BlockDefinition, registry: TargetRegistry | null = null) {
         if (!blockData) {
@@ -27,6 +28,30 @@ export class BlockCodeGenerator implements CodeGenerator {
         }
     }
 
+    public withOptions(options: { [key: string]: any }): BlockCodeGenerator {
+        this.additionalOptions = { ...this.additionalOptions, ...options };
+        return this;
+    }
+
+    public withOption(key: string, value: any): BlockCodeGenerator {
+        this.additionalOptions[key] = value;
+        return this;
+    }
+
+    public getTargetOptions(): { [key: string]: any } {
+        return { ...this.additionalOptions, ...this._data.spec.target?.options };
+    }
+
+    private async createTarget(): Promise<Target> {
+        if (!this._data.spec.target) {
+            throw new Error('Block has no target');
+        }
+
+        const targetClass = await this._registry.get(this._data.spec.target.kind);
+
+        return new targetClass(this.getTargetOptions());
+    }
+
     /**
      * Generates the code for a block and returns an array of objects
      *
@@ -34,25 +59,13 @@ export class BlockCodeGenerator implements CodeGenerator {
      * [{filename:"index.js", content:"..."}, ...]
      */
     public async generate(): Promise<GeneratedResult> {
-        if (!this._data.spec.target) {
-            throw new Error('Block has no target');
-        }
-
-        const targetClass = await this._registry.get(this._data.spec.target.kind);
-
-        const target = new targetClass(this._data.spec.target.options);
+        const target = await this.createTarget();
 
         return this.generateForTarget(target);
     }
 
     public async postprocess(targetDir: string, assets: GeneratedAsset[]): Promise<void> {
-        if (!this._data.spec.target) {
-            throw new Error('Block has no target');
-        }
-
-        const targetClass = await this._registry.get(this._data.spec.target.kind);
-
-        const target = new targetClass(this._data.spec.target.options);
+        const target = await this.createTarget();
 
         return this.postprocessForTarget(targetDir, assets, target);
     }

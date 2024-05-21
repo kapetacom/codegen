@@ -42,7 +42,12 @@ export function walkDirectory(dir: string): string[] {
     return results;
 }
 
-export async function testCodeGenFor(target: any, generator: CodeGenerator, basedir: string, allFilesFilter: (path: string) => boolean = (path) => true) {
+export async function testCodeGenFor(
+    target: any,
+    generator: CodeGenerator,
+    basedir: string,
+    allFilesFilter: (path: string) => boolean = (path) => true
+) {
     const results = await generator.generateForTarget(target);
     /* eslint-disable-next-line @typescript-eslint/no-var-requires */
     const { expect } = require('@jest/globals');
