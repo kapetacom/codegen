@@ -17,6 +17,7 @@ export const ASSETS_FILE = Path.join(KAPETA_FOLDER, 'generated-files.yml');
 export const MODE_MERGE = 'merge';
 export const MODE_CREATE_ONLY = 'create-only';
 export const MODE_WRITE_ALWAYS = 'write-always';
+export const MODE_WRITE_NEVER = 'write-never';
 export const DEFAULT_FILE_PERMISSIONS = '644';
 
 export interface FileSystemHandler {
@@ -172,6 +173,10 @@ export class CodeWriter {
             case MODE_CREATE_ONLY:
                 //Only write if file does not exist
                 writeNow = !destinationExists;
+                break;
+            case MODE_WRITE_NEVER:
+                //Never write files. This is useful for files that are generated but should not be written
+                writeNow = false;
                 break;
 
             default:
