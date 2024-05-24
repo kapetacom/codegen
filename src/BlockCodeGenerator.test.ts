@@ -83,4 +83,11 @@ describe('BlockCodeGenerator', () => {
             'kapeta/provider-test:1.2.3',
         ]);
     });
+
+    test('can receive additional options', async () => {
+        const generator = new BlockCodeGenerator(block, registry);
+        generator.withOption('test', 'test');
+
+        expect(generator.getTargetOptions()).toEqual({ test: 'test' });
+    });
 });

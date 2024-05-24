@@ -11,6 +11,7 @@ import {
     MODE_CREATE_ONLY,
     MODE_MERGE,
     MODE_WRITE_ALWAYS,
+    MODE_WRITE_NEVER,
 } from './CodeWriter';
 import { GeneratedFile, GeneratedResult, SourceFile, TargetMethods } from './types';
 import Path from 'node:path';
@@ -243,6 +244,39 @@ describe('CodeWriter', () => {
             Path.join(BASEDIR, CodeWriter.getInternalMergePath('test.json')),
             Path.join(BASEDIR, 'create.txt'),
             Path.join(BASEDIR, 'test.json'),
+        ]);
+    });
+
+    test('will not write files that have write-never mode', () => {
+        const fileSystemHandler = new TestFileSystemHandler();
+        const writer = new CodeWriter(BASEDIR, {
+            fileSystemHandler: fileSystemHandler,
+        });
+
+        const files: GeneratedFile[] = [
+            {
+                filename: 'create.txt',
+                content: 'CREATING ONLY',
+                mode: MODE_CREATE_ONLY,
+                permissions: DEFAULT_FILE_PERMISSIONS,
+            },
+            {
+                filename: 'write.txt',
+                content: 'WRITE NEVER',
+                mode: MODE_WRITE_NEVER,
+                permissions: DEFAULT_FILE_PERMISSIONS,
+            },
+        ];
+
+        let assets = writer.write({
+            target: TestTarget,
+            files,
+        });
+
+        expect(assets).toHaveLength(2);
+        expect(fileSystemHandler.listFiles()).toEqual([
+            Path.join(BASEDIR, ASSETS_FILE),
+            Path.join(BASEDIR, 'create.txt'),
         ]);
     });
 
