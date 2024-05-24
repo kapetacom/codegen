@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/kapetacom/codegen/compare/v1.3.2...v1.4.0) (2024-05-24)
+
+
+### Features
+
+* Add methods for additional options for block code generator ([#16](https://github.com/kapetacom/codegen/issues/16)) ([4e95c85](https://github.com/kapetacom/codegen/commit/4e95c858c94aa8facbd9df92fbee16e5c0995f23))
+
 ## [1.3.2](https://github.com/kapetacom/codegen/compare/v1.3.1...v1.3.2) (2024-05-07)
 
 
