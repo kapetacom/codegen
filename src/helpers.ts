@@ -6,7 +6,7 @@
 import * as Path from 'path';
 import * as FS from 'fs';
 import { CodeGenerator } from './types';
-import { CodeWriter, MODE_MERGE } from './CodeWriter';
+import {CodeWriter, MODE_MERGE, MODE_WRITE_NEVER} from './CodeWriter';
 import { Stats } from 'fs';
 import { expect } from '@jest/globals';
 
@@ -62,6 +62,10 @@ export async function testCodeGenFor(
     const mergeFiles: string[] = [];
 
     results.files.forEach((result) => {
+        if (result.mode === MODE_WRITE_NEVER) {
+            return;
+        }
+
         if (result.mode === MODE_MERGE) {
             mergeFiles.push(result.filename);
         }
