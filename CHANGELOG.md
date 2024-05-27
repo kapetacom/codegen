@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/kapetacom/codegen/compare/v1.4.0...v1.4.1) (2024-05-27)
+
+
+### Bug Fixes
+
+* Ignore write-never files ([a2a9785](https://github.com/kapetacom/codegen/commit/a2a9785bf521bef9e6746fa78507956272eda996))
+
 # [1.4.0](https://github.com/kapetacom/codegen/compare/v1.3.2...v1.4.0) (2024-05-24)
 
 
