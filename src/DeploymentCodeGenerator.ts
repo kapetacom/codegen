@@ -5,7 +5,7 @@
 
 import { Deployment } from '@kapeta/schemas';
 import { TargetRegistry } from './TargetRegistry';
-import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, TargetMethods } from './types';
+import { CodeGenerator, GeneratedAsset, GeneratedFile, GeneratedResult, TargetMethods, ValidationResult } from './types';
 import { registry as DefaultRegistry } from './DefaultRegistry';
 
 export class DeploymentCodeGenerator implements CodeGenerator {
@@ -86,4 +86,23 @@ export class DeploymentCodeGenerator implements CodeGenerator {
         }
         return out;
     }
+
+    public async validateForTarget(targetDir: string): Promise<ValidationResult> {
+        if (!this._data.spec.target) {
+            throw new Error('Deployment has no target');
+        }
+
+        const targetClass = await this._registry.get(this._data.spec.target.kind);
+
+        const target = new targetClass(this._data.spec.target.kind);
+
+        if (target.validate) {
+            return target.validate(targetDir);
+        }
+
+        return {
+            error: '',
+            valid: true,
+        };
+    } 
 }
