@@ -26,7 +26,7 @@ export interface CodeGenerator {
 
 export interface ValidationResult {
     error: string;
-    status: 'ok' | 'error';
+    valid: boolean;
 }
 
 export interface SourceFile {

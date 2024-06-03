@@ -102,7 +102,7 @@ export class DeploymentCodeGenerator implements CodeGenerator {
 
         return {
             error: '',
-            status: 'ok',
+            valid: true,
         };
     } 
 }

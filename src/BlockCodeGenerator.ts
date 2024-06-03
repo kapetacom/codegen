@@ -134,7 +134,7 @@ export class BlockCodeGenerator implements CodeGenerator {
             return target.validate(targetDir);
         } else {
             console.log('No validation for target %s', target.constructor.name);
-            return Promise.resolve({ target, error: '', status: 'ok' });
+            return Promise.resolve({ target, error: '', valid: true });
         }
     }
 }
