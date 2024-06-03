@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/kapetacom/codegen/compare/v1.4.1...v1.5.0) (2024-06-03)
+
+
+### Bug Fixes
+
+* change status to boolean and renamed to valid ([fa87c84](https://github.com/kapetacom/codegen/commit/fa87c845cea817095fb8b141c77667b072176a53))
+
+
+### Features
+
+* Validate target ([8ae42db](https://github.com/kapetacom/codegen/commit/8ae42db05db46bc1f2e57fd342ba60b21c792d1e))
+
 ## [1.4.1](https://github.com/kapetacom/codegen/compare/v1.4.0...v1.4.1) (2024-05-27)
 
 
