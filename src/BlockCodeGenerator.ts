@@ -5,7 +5,7 @@
 
 import { BlockDefinition } from '@kapeta/schemas';
 import { TargetRegistry } from './TargetRegistry';
-import { CodeGenerator, GeneratedAsset, GeneratedResult, Target, TargetMethods } from './types';
+import { CodeGenerator, GeneratedAsset, GeneratedResult, Target, TargetMethods, ValidationResult } from './types';
 import { registry as DefaultRegistry } from './DefaultRegistry';
 
 const ENTITY_KIND = 'core/entity';
@@ -124,5 +124,17 @@ export class BlockCodeGenerator implements CodeGenerator {
         }
 
         return out;
+    }
+
+    public async validateForTarget(targetDir: string): Promise<ValidationResult> {
+        const target = await this.createTarget();
+
+        if (target.validate) {
+            console.log('Validating target %s', target.constructor.name);
+            return target.validate(targetDir);
+        } else {
+            console.log('No validation for target %s', target.constructor.name);
+            return Promise.resolve({ target, error: '', status: 'ok' });
+        }
     }
 }
