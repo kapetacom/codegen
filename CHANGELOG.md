@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/kapetacom/codegen/compare/v1.5.0...v1.6.0) (2024-06-12)
+
+
+### Features
+
+* add language for context ([4079313](https://github.com/kapetacom/codegen/commit/40793139c049c67864fb50df09302f14b4c1b7f5))
+
 # [1.5.0](https://github.com/kapetacom/codegen/compare/v1.4.1...v1.5.0) (2024-06-03)
 
 
