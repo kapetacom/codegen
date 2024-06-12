@@ -137,4 +137,12 @@ export class BlockCodeGenerator implements CodeGenerator {
             return Promise.resolve({ target, error: '', valid: true });
         }
     }
+
+    public async language(): Promise<string> {
+        const target = await this.createTarget();
+        if (target.language) {
+            return target.language();
+        }
+        return "undefined";
+    }
 }

@@ -104,5 +104,12 @@ export class DeploymentCodeGenerator implements CodeGenerator {
             error: '',
             valid: true,
         };
-    } 
+    }
+
+    public async language(): Promise<string> {
+        if (this._data.spec.target && this._data.spec.target.language) {
+            return this._data.spec.target.language;
+        }
+        return "undefined";
+    }
 }
