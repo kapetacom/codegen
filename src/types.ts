@@ -10,6 +10,7 @@ export interface TargetMethods {
     postprocess?: (targetDir: string, files: GeneratedAsset[]) => Promise<void>;
     mergeFile?: (sourceFile: SourceFile, newFile: GeneratedFile, lastFile: GeneratedFile | null) => GeneratedFile;
     validate?: (targetDir: string) => Promise<ValidationResult>;
+    language?: () => string;
 }
 
 export interface Target extends TargetMethods {
@@ -22,6 +23,7 @@ export interface CodeGenerator {
     postprocess(targetDir: string, assets: GeneratedAsset[]): Promise<void>;
     postprocessForTarget(targetDir: string, assets: GeneratedAsset[], target: Target): Promise<void>;
     validateForTarget(targetDir: string): Promise<ValidationResult>;
+    language(): Promise<string>;
 }
 
 export interface ValidationResult {
