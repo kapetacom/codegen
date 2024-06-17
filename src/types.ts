@@ -61,6 +61,7 @@ export enum AIFileTypes {
     SERVICE = 'service',
     SERVICE_IF = 'service-interface',
     WEB_SCREEN = 'web-screen',
+    WEB_ROUTER = 'web-router',
     DAO = 'dao',
     DTO = 'dto',
     CONFIG = 'config',

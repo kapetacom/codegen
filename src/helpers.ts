@@ -8,7 +8,6 @@ import * as FS from 'fs';
 import { CodeGenerator } from './types';
 import {CodeWriter, MODE_MERGE, MODE_WRITE_NEVER} from './CodeWriter';
 import { Stats } from 'fs';
-import { expect } from '@jest/globals';
 
 function toUnixPermissions(statsMode: number) {
     return (statsMode & parseInt('777', 8)).toString(8);
