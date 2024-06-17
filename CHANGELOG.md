@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/kapetacom/codegen/compare/v1.6.0...v1.6.1) (2024-06-17)
+
+
+### Bug Fixes
+
+* add web-router to filetypes enum ([#19](https://github.com/kapetacom/codegen/issues/19)) ([fc7c4d4](https://github.com/kapetacom/codegen/commit/fc7c4d4f1e7494a683f29a5059ed76002f43fa3a))
+
 # [1.6.0](https://github.com/kapetacom/codegen/compare/v1.5.0...v1.6.0) (2024-06-12)
 
 
